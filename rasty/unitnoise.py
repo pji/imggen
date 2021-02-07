@@ -59,8 +59,6 @@ class UnitNoise(Noise):
         whole = (a // 1).astype(int)
         parts = a - whole
 
-        # Get the color for the eight vertices that surround each of
-        # the pixels.
         grids = self._build_grids(whole, size, shape)
         a = self._terp(grids, parts)
         return a / (self.max - self.min)
@@ -69,21 +67,24 @@ class UnitNoise(Noise):
     def _build_grids(self, whole: np.ndarray, 
                      size: Sequence[float],
                      shape: Sequence[int]) -> dict[str, np.ndarray]:
+        """Get the color for the eight vertices that surround each of
+        the pixels.
+        """
         grids = {}
-        for hash in self.hashes:
-            hash_whole = whole.copy()
-            a_hash = np.zeros(size)
-            if hash[2] == '1':
-                hash_whole[X] += 1
-            if hash[1] == '1':
-                hash_whole[Y] += 1
-            if hash[0] == '1':
-                hash_whole[Z] += 1
-            a_hash = (hash_whole[Z] * shape[Y] * shape[X]
-                      + hash_whole[Y] * shape[X]
-                      + hash_whole[X])
-            a_hash = np.take(self._table, a_hash)
-            grids[hash] = a_hash
+        for key in self.hashes:
+            grid_whole = whole.copy()
+            a_grid = np.zeros(size)
+            if key[2] == '1':
+                grid_whole[X] += 1
+            if key[1] == '1':
+                grid_whole[Y] += 1
+            if key[0] == '1':
+                grid_whole[Z] += 1
+            a_grid = (grid_whole[Z] * shape[Y] * shape[X]
+                      + grid_whole[Y] * shape[X]
+                      + grid_whole[X])
+            a_grid = np.take(self._table, a_grid)
+            grids[key] = a_grid
         return grids
     
     def _init_table(self) -> list[int]:
