@@ -1,0 +1,78 @@
+"""
+test_unitnoise
+~~~~~~~~~~~~~~
+
+Unit tests for the rasty.unitnoise module.
+"""
+import numpy as np
+
+from rasty import unitnoise as un
+from tests.common import SourceTestCase
+
+
+# Test cases.
+class UnitNoiseTestCase(SourceTestCase):
+    def test_unitnoise_seeds_table_creation(self):
+        """When initialized with a seed value, UnitNoise should use
+        that value to seed the random generation of its table.
+        """
+        # Expected value.
+        exp = [3, 1, 0, 2, 3, 5, 0, 2, 1, 5, 4, 4]
+        
+        # Test data and state.
+        kwargs = {
+            'unit': (4, 4, 4),
+            'min': 0,
+            'max': 6,
+            'repeats': 1,
+            'seed': 'spam',
+        }
+        
+        # Run test.
+        obj = un.UnitNoise(**kwargs)
+        act = obj._table
+        
+        # Determine test result.
+        self.assertListEqual(exp, act)
+
+    def test_unitnoise_fill_with_noise(self):
+        """Given the size of each dimension of the noise,
+        UnitNoise.fill should return an array that contains
+        the expected noise.
+        """
+        # Expected values.
+        exp = np.array([
+            [
+                [0x60, 0x5a, 0x54, 0x58, 0x5c, 0x6d, 0x7f, 0x42],
+                [0x33, 0x36, 0x3a, 0x6f, 0xa4, 0x8b, 0x73, 0x78],
+                [0x06, 0x13, 0x21, 0x87, 0xed, 0xaa, 0x67, 0xae],
+                [0x7d, 0x62, 0x46, 0x6a, 0x8f, 0x88, 0x81, 0x9f],
+                [0xf5, 0xb0, 0x6c, 0x4e, 0x31, 0x66, 0x9b, 0x91],
+                [0xbe, 0x8a, 0x57, 0x72, 0x8e, 0xa9, 0xc5, 0x9d],
+                [0x87, 0x64, 0x42, 0x96, 0xeb, 0xed, 0xef, 0xaa],
+                [0x76, 0x58, 0x3a, 0x5f, 0x83, 0x82, 0x81, 0x8a],
+            ],
+            [
+                [0x62, 0x53, 0x43, 0x3f, 0x3c, 0x42, 0x49, 0x56],
+                [0x63, 0x47, 0x2c, 0x61, 0x96, 0x86, 0x75, 0x80],
+                [0x64, 0x3c, 0x15, 0x83, 0xf1, 0xc9, 0xa1, 0xab],
+                [0x8c, 0x75, 0x5e, 0x8e, 0xbf, 0xa4, 0x8a, 0x99],
+                [0xb4, 0xad, 0xa7, 0x9a, 0x8d, 0x80, 0x72, 0x87],
+                [0xa8, 0xa5, 0xa2, 0x97, 0x8c, 0x90, 0x93, 0x99],
+                [0x9c, 0x9d, 0x9e, 0x95, 0x8c, 0xa0, 0xb5, 0xaa],
+                [0x9e, 0x90, 0x82, 0x67, 0x4d, 0x67, 0x82, 0x98],
+            ],
+        ], dtype=np.uint8)
+
+
+        # Set up test data and state.
+        kwargs = {
+            'unit': (2, 2, 2),
+            'min': 0x00,
+            'max': 0xff,
+            'seed': 'spam',
+        }
+        cls = un.UnitNoise
+
+        # Perform test.
+        self.fill_test(exp, cls, kwargs)

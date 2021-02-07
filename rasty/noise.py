@@ -12,6 +12,10 @@ from numpy.random import default_rng
 from rasty.sources import Source
 
 
+# Common types.
+Seed = Union[None, int, str, bytes]
+
+
 # Public classes.
 class Noise(Source):
     """Create continuous-uniformly distributed random noise with a
@@ -28,8 +32,7 @@ class Noise(Source):
     :return: :class:Noise object.
     :rtype: rasty.noise.Noise
     """
-    def __init__(self,
-                 seed: Union[None, int, str, bytes] = None) -> None:
+    def __init__(self, seed: Seed = None) -> None:
         """Initialize an instance of Noise."""
         # Store the seed for potential serialization.
         self.seed = seed
