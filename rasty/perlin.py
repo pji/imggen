@@ -8,12 +8,12 @@ from typing import Sequence
 
 import numpy as np
 
+from rasty import unitnoise as un
 from rasty.rasty import X, Y, Z
-from rasty.unitnoise import Seed, UnitNoise
 
 
 # Public class.
-class Perlin(UnitNoise):
+class Perlin(un.UnitNoise):
     """A class to generate Perlin noise.
 
     :param unit: The number of pixels between vertices along an
@@ -48,7 +48,7 @@ class Perlin(UnitNoise):
                  min: int = 0x00,
                  max: int = 0xff,
                  repeats: int = 1,
-                 seed: Seed = None) -> None:
+                 seed: un.Seed = None) -> None:
         """Initialize an instance of UnitNoise."""
         super().__init__(unit, min, max, repeats, seed)
         
@@ -123,16 +123,21 @@ class Perlin(UnitNoise):
         return out.astype(float)
 
 
+# Octave unit noise classes.
+defaults = un.OctaveNoiseDefaults(6, -4, 24, 4)
+OctavePerlin = un.octave_noise_factory(Perlin, defaults)
+
+
 if __name__ == '__main__':
     import rasty.utility as u
     kwargs = {
-        'unit': (4, 4, 4),
+        'unit': (1024, 1024, 1024),
         'min': 0x00,
         'max': 0xff,
         'repeats': 1,
         'seed': 'eggs',
     }
-    cls = Perlin
+    cls = OctavePerlin
     size = (3, 12, 10)
     obj = cls(**kwargs)
     a = obj.fill(size)

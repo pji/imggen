@@ -4,12 +4,12 @@ unitnoise
 
 Image data sources that create unit noise.
 """
-from typing import Sequence
+from typing import NamedTuple, Sequence
 
 import numpy as np
 
 from rasty.noise import Noise, Seed
-from rasty.rasty import X, Y, Z
+from rasty.rasty import Source, X, Y, Z
 from rasty.utility import lerp
 
 
@@ -191,18 +191,32 @@ class CosineCurtains(Curtains):
 
 
 # Factories.
-def octave_noise_factory(unitnoise_source) -> type:
-    class OctaveNoise:
+class OctaveNoiseDefaults(NamedTuple):
+    octaves: int = 4
+    persistence: float = 8
+    amplitude: float = 8
+    frequency: float = 2
+    unit: Sequence[int] = (1, 1, 1)
+    min: int = 0x00
+    max: int = 0xff
+    repeats: int = 0
+    seed: Seed = None
+
+
+def octave_noise_factory(source: UnitNoise, 
+                         defaults: OctaveNoiseDefaults) -> type:
+    class OctaveNoise(Source):
         source = None
         
-        def __init__(self, octaves: int = 4,
-                     persistence: float = 8,
-                     amplitude: float = 8,
-                     frequency: float = 2,
-                     unit: Sequence[int] = (1, 1, 1),
-                     min: int = 0x00,
-                     max: int = 0xff,
-                     seed: Seed = None) -> None:
+        def __init__(self, octaves: int = defaults.octaves,
+                     persistence: float = defaults.persistence,
+                     amplitude: float = defaults.amplitude,
+                     frequency: float = defaults.frequency,
+                     unit: Sequence[int] = defaults.unit,
+                     min: int = defaults.min,
+                     max: int = defaults.max,
+                     repeats: int = defaults.repeats,
+                     seed: Seed = defaults.seed) -> None:
             self.octaves = octaves
             self.persistence = persistence
             self.amplitude = amplitude
@@ -210,6 +224,7 @@ def octave_noise_factory(unitnoise_source) -> type:
             self.unit = unit
             self.min = min
             self.max = max
+            self.repeats = repeats
             self.seed = seed
     
         def fill(self, size: Sequence[int],
@@ -232,12 +247,15 @@ def octave_noise_factory(unitnoise_source) -> type:
             return a
 
     cls = OctaveNoise
-    cls.source = unitnoise_source
+    cls.source = source
     return cls
 
 
 # Octave unit noise classes.
-OctaveUnitNoise = octave_noise_factory(UnitNoise)
+defaults = OctaveNoiseDefaults()
+OctaveCosineCurtains = octave_noise_factory(CosineCurtains, defaults)
+OctaveCurtains = octave_noise_factory(Curtains, defaults)
+OctaveUnitNoise = octave_noise_factory(UnitNoise, defaults)
 
 
 if __name__ == '__main__':
@@ -248,7 +266,7 @@ if __name__ == '__main__':
         'max': 0xff,
         'seed': 'spam',
     }
-    cls = octave_noise_factory(UnitNoise)
+    cls = OctaveCosineCurtains
     size = (3, 8, 8)
     obj = cls(**kwargs)
     a = obj.fill(size)
