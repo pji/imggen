@@ -190,6 +190,56 @@ class CosineCurtains(Curtains):
         return whole, parts
 
 
+# Factories.
+def octave_noise_factory(unitnoise_source) -> type:
+    class OctaveNoise:
+        source = None
+        
+        def __init__(self, octaves: int = 4,
+                     persistence: float = 8,
+                     amplitude: float = 8,
+                     frequency: float = 2,
+                     unit: Sequence[int] = (1, 1, 1),
+                     min: int = 0x00,
+                     max: int = 0xff,
+                     seed: Seed = None) -> None:
+            self.octaves = octaves
+            self.persistence = persistence
+            self.amplitude = amplitude
+            self.frequency = frequency
+            self.unit = unit
+            self.min = min
+            self.max = max
+            self.seed = seed
+    
+        def fill(self, size: Sequence[int],
+                 loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+            total = 0
+            max_value = 0
+            for i in range(self.octaves):
+                amp = self.amplitude + (self.persistence * i)
+                freq = self.frequency * 2 ** i
+                kwargs = {
+                    'unit': self.unit,
+                    'min': self.min,
+                    'max': self.max,
+                    'seed': self.seed,
+                }
+                octave = self.source(**kwargs)
+                total += octave.fill(size, loc) * amp
+                max_value += amp
+            a = total / max_value
+            return a
+
+    cls = OctaveNoise
+    cls.source = unitnoise_source
+    return cls
+
+
+# Octave unit noise classes.
+OctaveUnitNoise = octave_noise_factory(UnitNoise)
+
+
 if __name__ == '__main__':
     import rasty.utility as u
     kwargs = {
@@ -198,18 +248,8 @@ if __name__ == '__main__':
         'max': 0xff,
         'seed': 'spam',
     }
-    cls = CosineCurtains
+    cls = octave_noise_factory(UnitNoise)
     size = (3, 8, 8)
     obj = cls(**kwargs)
     a = obj.fill(size)
     u.print_array(a)
-
-
-# Factories.
-def octave_noise_factory(unitnoise_source) -> type:
-    class OctaveNoise:
-        source = None
-    
-    cls = OctaveNoise
-    cls.source = unitnoise_source
-    return cls
