@@ -92,6 +92,7 @@ class UnitNoise(Noise):
                 for r_axis in remaining_axes:
                     axis_incr *= shape[r_axis]
                 a_grid += grid_whole[axis] * axis_incr
+                a_grid %= len(self._table)
             
             a_grid = np.take(self._table, a_grid)
             grids[key] = a_grid
@@ -103,16 +104,8 @@ class UnitNoise(Noise):
         for axis in range(self._axes):
             # Double inverse floor is ceiling division.
             length = -(-size[axis] // self.unit[axis])
+            length = int(length)
             shape.append(length)
-        
-        # Check whether the table is going to be large enough for the
-        # unit grid.
-        vertices_count = 1
-        for n in shape:
-            vertices_count *= n
-        if vertices_count > len(self._table):
-            msg = 'Randomized table too small for requested size.'
-            raise ValueError(msg)
         
         return shape
     
@@ -196,10 +189,10 @@ class OctaveNoiseDefaults(NamedTuple):
     persistence: float = 8
     amplitude: float = 8
     frequency: float = 2
-    unit: Sequence[int] = (1, 1, 1)
+    unit: Sequence[int] = (1024, 1024, 1024)
     min: int = 0x00
     max: int = 0xff
-    repeats: int = 0
+    repeats: int = 1
     seed: Seed = None
 
 
@@ -229,21 +222,23 @@ def octave_noise_factory(source: UnitNoise,
     
         def fill(self, size: Sequence[int],
                  loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
-            total = 0
+            a = np.zeros(tuple(size), dtype=float)
             max_value = 0
             for i in range(self.octaves):
                 amp = self.amplitude + (self.persistence * i)
                 freq = self.frequency * 2 ** i
+                unit = [n / freq for n in self.unit]
                 kwargs = {
-                    'unit': self.unit,
+                    'unit': tuple(unit),
                     'min': self.min,
                     'max': self.max,
+                    'repeats': self.repeats,
                     'seed': self.seed,
                 }
                 octave = self.source(**kwargs)
-                total += octave.fill(size, loc) * amp
+                a += octave.fill(size, loc) * amp
                 max_value += amp
-            a = total / max_value
+            a /= max_value
             return a
 
     cls = OctaveNoise
@@ -262,12 +257,10 @@ if __name__ == '__main__':
     import rasty.utility as u
     kwargs = {
         'unit': (4, 4, 4),
-        'min': 0x00,
-        'max': 0xff,
         'seed': 'spam',
     }
     cls = OctaveCosineCurtains
     size = (3, 8, 8)
     obj = cls(**kwargs)
     a = obj.fill(size)
-    u.print_array(a)
+    u.print_array(a, 2)

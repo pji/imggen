@@ -138,7 +138,7 @@ if __name__ == '__main__':
         'seed': 'eggs',
     }
     cls = OctavePerlin
-    size = (3, 12, 10)
+    size = (3, 12, 8)
     obj = cls(**kwargs)
     a = obj.fill(size)
-    u.print_array(a)
+    u.print_array(a, 2)
