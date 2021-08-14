@@ -9,6 +9,7 @@ import unittest as ut
 import numpy as np
 
 
+# Base test cases.
 class ArrayTestCase(ut.TestCase):
     def assertArrayEqual(self, a, b):
         """Assert that two numpy.ndarrays are equal."""
