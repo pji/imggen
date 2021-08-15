@@ -1,7 +1,7 @@
 """
 __version__
 
-Common information about the statuswriter module, including the version
+Common information about the rasty module, including the version
 number.
 """
 
