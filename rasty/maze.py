@@ -64,7 +64,7 @@ class Maze(un.UnitNoise):
 
     *   left | l
     *   middle | m
-    *   bottom | b
+    *   right | r
     """
     def __init__(self, unit: Sequence[int], 
                  width: float = .2,
@@ -255,12 +255,16 @@ if __name__ == '__main__':
     import rasty.utility as u
     kwargs = {
         'width': .34,
-        'inset': (0, 1, 1),
+#         'inset': (0, 1, 1),
+        'inset': (0, 0, 0),
         'unit': (1, 3, 3),
+#         'origin': (0, 1, 1),
+        'origin': 'mm',
+#         'origin': 'tl',
         'seed': 'spam',
     }
     cls = Maze
-    size = (2, 10, 10)
+    size = (1, 9, 9)
     obj = cls(**kwargs)
     a = obj.fill(size)
     u.print_array(a, 2)
