@@ -25,10 +25,12 @@ class ArrayTestCase(ut.TestCase):
 
 
 class SourceTestCase(ArrayTestCase):
-    def fill_test(self, exp, source, kwargs):
+    def fill_test(self, exp, source, kwargs, size=None):
         # Run test.
         obj = source(**kwargs)
-        result = obj.fill(exp.shape)
+        if not size:
+            size = exp.shape
+        result = obj.fill(size)
         
         # Round actual result to avoid having to type out long float
         # numbers in the expected result.

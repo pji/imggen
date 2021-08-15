@@ -46,7 +46,7 @@ class Maze(un.UnitNoise):
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
     :return: :class:Maze object.
-    :rtype: rasty.Maze
+    :rtype: rasty.maze.Maze
 
     Descriptive Origins
     -------------------
@@ -251,20 +251,144 @@ class Maze(un.UnitNoise):
         return tuple(pixel_loc)
 
 
+class AnimatedMaze(Maze):
+    """Animate the creation of a maze.
+
+    :param delay: (Optional.) The number of frames to wait before
+        starting the animation.
+    :param linger: (Optional.) The number of frames to hold on the
+        last image of the animation.
+    :param trace: (Optional.) Whether to show all of the path that
+        had been walked to this point (True) or just show this step
+        (False).
+    :param width: (Optional.) The width of the path. This is the
+        percentage of the width of the X axis length of the size
+        of the fill. Values over one will probably be weird, but
+        not in a great way.
+    :param inset: (Optional.) Sets how many units from the end of
+        the image to draw the path. Units here refers to the unit
+        parameter from the UnitNoise parent class.
+    :param origin: (Optional.) Where in the grid to start the path.
+        This can be either a descriptive string or a three-dimensional
+        coordinate. It defaults to the top-left corner of the first
+        three-dimensional slice of the data.
+    :param unit: The number of pixels between vertices along an
+        axis. The vertices are the locations where colors for
+        the gradient are set.
+    :param min: (Optional.) The minimum value of a vertex of the unit
+        grid. This is involved in setting the path through the maze.
+    :param max: (Optional.) The maximum value of a vertex of the unit
+        grid. This is involved in setting the path through the maze.
+    :param seed: (Optional.) An int, bytes, or string used to seed
+        therandom number generator used to generate the image data.
+        If no value is passed, the RNG will not be seeded, so
+        serialized versions of this source will not product the
+        same values. Note: strings that are passed to seed will
+        be converted to UTF-8 bytes before being converted to
+        integers for seeding.
+    :param ease: (Optional.) The easing function to use on the
+        generated noise.
+    :return: :class:AnimatedMaze object.
+    :rtype: rasty.maze.AnimatedMaze
+    """
+    def __init__(self, delay=0, linger=0, trace=True, *args, **kwargs) -> None:
+        self.delay = delay
+        self.linger = linger
+        self.trace = trace
+        super().__init__(*args, **kwargs)
+
+    # Public methods.
+    def fill(self, size: Sequence[int],
+             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+        a = super().fill(size, loc)
+        for _ in range(self.delay):
+            a = np.insert(a, 0, np.zeros_like(a[0]), 0)
+        for _ in range(self.linger):
+            a = np.insert(a, -1, a[-1], 0)
+        return a
+
+    # Private methods.
+    def _draw_path(self, path, size):
+        def _take_step(branch, frame):
+            try:
+                step = branch[index]
+                start = self._unit_to_pixel(step[0])
+                end = self._unit_to_pixel(step[1])
+                slice_y = self._get_slice(start[Y], end[Y], width)
+                slice_x = self._get_slice(start[X], end[X], width)
+                frame[slice_y, slice_x] = 1.0
+            except IndexError:
+                pass
+            except TypeError:
+                pass
+            return frame
+
+        a = np.zeros(size, dtype=float)
+        path = self._find_branches(path)
+        width = int(self.unit[-1] * self.width)
+        index = 0
+        frame = a[0].copy()
+        while index < size[Z] - 1:
+            for branch in path:
+                frame = _take_step(branch, frame)
+            a[index + 1] = frame.copy()
+            index += 1
+            if not self.trace:
+                frame.fill(0)
+        return a
+
+    def _find_branches(self, path):
+        """Find the spots where the path starts from the same location
+        and split those out into branches, so they can be animated to
+        be walked at the same time.
+        """
+        branches = []
+        index = 1
+        starts = [step[0] for step in path]
+        branch = [path[0],]
+        while index < len(path):
+            start = path[index][0]
+            if start in starts[:index]:
+                branches.append(branch)
+                for item in branches:
+                    bstarts = []
+                    for step in item:
+                        if step:
+                            bstarts.append(step[0])
+                        else:
+                            bstarts.append(step)
+                    if start in bstarts:
+                        delay = bstarts.index(start) - 1
+                        branch = [None for _ in range(delay)]
+                        break
+                else:
+                    msg = "Couldn't find branch with start."
+                    raise ValueError(msg)
+            branch.append(path[index])
+            index += 1
+        branches.append(branch)
+
+        # Make sure all the branches are the same length.
+        biggest = max(len(branch) for branch in branches)
+        for branch in branches:
+            if len(branch) < biggest:
+                branch.append(None)
+        return branches
+
+
+
 if __name__ == '__main__':
     import rasty.utility as u
     kwargs = {
+        'delay': 2,
         'width': .34,
-#         'inset': (0, 1, 1),
-        'inset': (0, 0, 0),
+        'inset': (0, 1, 1),
         'unit': (1, 3, 3),
-#         'origin': (0, 1, 1),
         'origin': 'mm',
-#         'origin': 'tl',
         'seed': 'spam',
     }
-    cls = Maze
-    size = (1, 9, 9)
+    cls = AnimatedMaze
+    size = (4, 9, 9)
     obj = cls(**kwargs)
     a = obj.fill(size)
     u.print_array(a, 2)
