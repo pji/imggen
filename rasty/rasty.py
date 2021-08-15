@@ -8,6 +8,8 @@ from abc import ABC, abstractmethod
 from inspect import signature
 from typing import Any, Mapping, Sequence
 
+from numpy import ndarray
+
 
 # Common constants.
 X, Y, Z = 2, 1, 0
@@ -50,7 +52,7 @@ class Serializable(ABC):
 class Source(Serializable):
     @abstractmethod
     def fill(self, size: Sequence[int], 
-             loc: Sequence[int] = (0, 0, 0)) -> 'numpy.ndarray':
+             loc: Sequence[int] = (0, 0, 0)) -> ndarray:
         """Fill a volume with image data.
         
         :param size: The size of the volume of image data to generate.

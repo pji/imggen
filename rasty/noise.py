@@ -9,7 +9,7 @@ from typing import Generator, Sequence, Union
 import numpy as np
 from numpy.random import default_rng
 
-from rasty.sources import Source
+from rasty.rasty import Source
 
 
 # Common types.
