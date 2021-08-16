@@ -5,7 +5,7 @@ maze
 Image data sources that create maze-like paths.
 """
 from operator import itemgetter
-from typing import Sequence
+from typing import Sequence, Union
 
 import numpy as np
 
@@ -18,8 +18,8 @@ class Maze(un.UnitNoise):
     """A class to generate maze-like paths.
 
     :param unit: The number of pixels between vertices along an
-        axis. The vertices are the locations where colors for
-        the gradient are set.
+        axis. The vertices are the locations where the direction
+        of the path can change.
     :param width: (Optional.) The width of the path. This is the
         percentage of the width of the X axis length of the size
         of the fill. Values over one will probably be weird, but
@@ -69,7 +69,7 @@ class Maze(un.UnitNoise):
     def __init__(self, unit: Sequence[int],
                  width: float = .2,
                  inset: Sequence[int] = (0, 1, 1),
-                 origin: Sequence[int] = (0, 0, 0),
+                 origin: Union[str, Sequence[int]] = 'tl',
                  min: int = 0x00,
                  max: int = 0xff,
                  repeats: int = 1,
@@ -254,6 +254,9 @@ class Maze(un.UnitNoise):
 class AnimatedMaze(Maze):
     """Animate the creation of a maze.
 
+    :param unit: The number of pixels between vertices along an
+        axis. The vertices are the locations where the direction
+        of the path can change.
     :param delay: (Optional.) The number of frames to wait before
         starting the animation.
     :param linger: (Optional.) The number of frames to hold on the
@@ -272,9 +275,6 @@ class AnimatedMaze(Maze):
         This can be either a descriptive string or a three-dimensional
         coordinate. It defaults to the top-left corner of the first
         three-dimensional slice of the data.
-    :param unit: The number of pixels between vertices along an
-        axis. The vertices are the locations where colors for
-        the gradient are set.
     :param min: (Optional.) The minimum value of a vertex of the unit
         grid. This is involved in setting the path through the maze.
     :param max: (Optional.) The maximum value of a vertex of the unit
@@ -286,8 +286,6 @@ class AnimatedMaze(Maze):
         same values. Note: strings that are passed to seed will
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
-    :param ease: (Optional.) The easing function to use on the
-        generated noise.
     :return: :class:AnimatedMaze object.
     :rtype: rasty.maze.AnimatedMaze
     """
@@ -297,7 +295,7 @@ class AnimatedMaze(Maze):
                  trace: bool = True,
                  width: float = .2,
                  inset: Sequence[int] = (0, 1, 1),
-                 origin: Sequence[int] = (0, 0, 0),
+                 origin: Union[str, Sequence[int]] = 'tl',
                  min: int = 0x00,
                  max: int = 0xff,
                  repeats: int = 1,
@@ -386,20 +384,244 @@ class AnimatedMaze(Maze):
         return branches
 
 
+class SolvedMaze(Maze):
+    """Draw a line that shows how to get from one location to another
+    in a maze.
+
+    :param unit: The number of pixels between vertices along an
+        axis. The vertices are the locations where the direction
+        of the path can change.
+    :param start: (Optional.) The starting location of the path.
+        This can be either a descriptive string or a three-dimensional
+        coordinate. It defaults to the top-left corner of the first
+        three-dimensional slice of the data.
+    :param end: (Optional.) The ending location of the path.
+        This can be either a descriptive string or a three-dimensional
+        coordinate. It defaults to the top-left corner of the first
+        three-dimensional slice of the data.
+    :param width: (Optional.) The width of the path. This is the
+        percentage of the width of the X axis length of the size
+        of the fill. Values over one will probably be weird, but
+        not in a great way.
+    :param inset: (Optional.) Sets how many units from the end of
+        the image to draw the path. Units here refers to the unit
+        parameter from the UnitNoise parent class.
+    :param origin: (Optional.) Where in the grid to start the path.
+        This can be either a descriptive string or a three-dimensional
+        coordinate. It defaults to the top-left corner of the first
+        three-dimensional slice of the data.
+    :param seed: (Optional.) An int, bytes, or string used to seed
+        therandom number generator used to generate the image data.
+        If no value is passed, the RNG will not be seeded, so
+        serialized versions of this source will not product the
+        same values. Note: strings that are passed to seed will
+        be converted to UTF-8 bytes before being converted to
+        integers for seeding.
+    :return: :class:SolvedMaze object.
+    :rtype: rasty.maze.SolvedPath
+
+    Descriptive Origins
+    -------------------
+    The origin parameter can accept a description of the location
+    instead of direct coordinates. This string must either be two
+    words delimited by a hyphen or two letters. The first position
+    sets the Y axis location can be one of the following options:
+
+    *   top | t
+    *   middle | m
+    *   bottom | b
+
+    The second position sets the X axis position and can be one of
+    the following options:
+
+    *   left | l
+    *   middle | m
+    *   right | r
+    """
+    def __init__(self, unit: Sequence[int],
+                 start: Union[str, Sequence[int]] = 'tl',
+                 end: Union[str, Sequence[int]] = 'br',
+                 algorithm: str = 'branches',
+                 width: float = .2,
+                 inset: Sequence[int] = (0, 1, 1),
+                 origin: Union[str, Sequence[int]] = 'tl',
+                 min: int = 0x00,
+                 max: int = 0xff,
+                 repeats: int = 1,
+                 seed: un.Seed = None) -> None:
+        super().__init__(unit, width, inset, origin, min, max, repeats, seed)
+        self.start = start
+        self.end = end
+        self._solve_path = self._solve_path_branches
+        if algorithm == 'breadcrumb':
+            self._solve_path = self._solve_path_breadcrumbs
+
+    # Public methods.
+    def fill(self, size: Sequence[int],
+             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+        """Fill a space with image data."""
+        values, unit_dim = self._build_grid(size, loc)
+        path = self._build_path(values, unit_dim)
+        solution = self._solve_path(path, unit_dim)
+        return self._draw_path(solution, size)
+
+    # Private methods.
+    def _map_available_steps(self, path):
+        """For every location in the path, determine what other
+        locations the cursor can move to.
+        """
+        # Enumerate the grid locations in the path and create a set
+        # that contains the available locations that can be stepped
+        # to. A set is used in this stage to ensure the list of
+        # available next steps doesn't contain duplicates.
+        steps = {}
+        for step in path:
+            if step[0] not in steps:
+                steps[step[0]] = set([step[1],])
+            else:
+                steps[step[0]].add(step[1])
+
+            if step[1] not in steps:
+                steps[step[1]] = set([step[0],])
+            else:
+                steps[step[1]].add(step[0])
+
+        # The sets are returned as lists to allow for future sorting.
+        return {k: list(steps[k]) for k in steps}
+
+    def _solve_path_breadcrumbs(self, path, unit_dim):
+        """Determine the steps needed to move from one location in the
+        path to another.
+        """
+        steps = self._map_available_steps(path)
+        solution = []
+        been_there = np.zeros(unit_dim, int)
+        start = tuple(self._calc_origin(self.start, unit_dim))
+        end = tuple(self._calc_origin(self.end, unit_dim))
+        last = None
+
+        # Starting at the start location, walk through the path one
+        # step at a time until the cursor reaches the end location.
+        cursor = start
+        while cursor != end:
+
+            # Drop breadcrumbs so the algorithm knows how many times
+            # you've been to this position.
+            been_there[cursor] += 1
+
+            # Create list with each of the possible next locations.
+            # Then determine how many times the cursor has been to
+            # each of those locations. If a location has been visited
+            # it means we either just left that location or there was
+            # a dead end in that direction. Pick the step that has
+            # been visited the least because it's more likely there is
+            # unexplored portions of the path in that direction.
+            options = steps[cursor]
+            times_hit = [been_there[option] for option in options]
+            sort_options = sorted(zip(times_hit, options))
+            next_ = sort_options[0][1]
+
+            # If the location that we've visited the least is the
+            # location we just came from, we have hit a dead end.
+            # Since we don't know where we went wrong, start back
+            # at the beginning so we can use the breadcrumbs to
+            # find a more promising route.
+            if next_ == last:
+                cursor = start
+                last = None
+                solution = []
+
+            # Otherwise, add the step to the possible solution, make
+            # sure we remember the last location, so we can detect
+            # dead ends, and move to the next location.
+            else:
+                solution.append((cursor, next_))
+                last = cursor
+                cursor = next_
+
+        # Return the list of steps to go from the start of the path
+        # to the end of the path.
+        return solution
+
+    def _solve_path_branches(self, path, unit_dim):
+        """Determine the steps needed to move from one location in the
+        path to another.
+        """
+        # Determine the maximum number of steps it could possibly 
+        # take to use to determine when the algorithm gets stuck
+        # in a loop because there is no solution.
+        max_steps = unit_dim[Y] * unit_dim[X]
+        
+        # Get a map of where you can go with one step from each
+        # location in the grid
+        available_steps = self._map_available_steps(path)
+        
+        # Calculate the starting and ending locations.
+        start_ = tuple(self._calc_origin(self.start, unit_dim))
+        end = tuple(self._calc_origin(self.end, unit_dim))
+
+        # Prime the possible paths through the maze with the first
+        # steps that can be taken from the starting position.
+        paths = []
+        for option in available_steps[start_]:
+            step = (start_, option)
+            path = [step,]
+            paths.append(path)
+
+        # Follow each path possible from the starting point, breaking
+        # once one of the paths reaches the exit or the paths take 
+        # enough steps to have reached every position in the maze
+        # without finding the exit.
+        step_count = 0
+        solution = None
+        while not solution and step_count <= max_steps:
+            new_paths = []
+            for path in paths:
+                step = path[-1]
+                
+                # Hurray, we found the exit!
+                if step[1] == end:
+                    solution = path
+                    break
+                
+                # We haven't found the exit yet, so keep looking.
+                options = available_steps[step[1]]
+                options = [option for option in options if option != step[0]]
+                for option in options:
+                    new_path = path[:]
+                    new_step = (step[1], option)
+                    new_path.append(new_step)
+                    new_paths.append(new_path)
+            
+            # Since we didn't find the exit, get ready for the next
+            # iteration.
+            paths = new_paths
+            step_count += 1
+        
+        # If we took enough steps to reach every position in the
+        # maze without finding an exit, there must not be a solution.
+        if not solution:
+            raise ValueError('No solution exists for path.')
+        
+        # Return the solution.
+        return solution
+
 
 if __name__ == '__main__':
     import rasty.utility as u
     kwargs = {
 #         'delay': 2,
-        'linger': 2,
+#         'linger': 2,
+#         'start': 'bl',
+        'end': 'bl',
         'width': .34,
 #         'inset': (0, 0, 0),
         'unit': (1, 3, 3),
-        'origin': 'br',
+#         'origin': 'br',
         'seed': 'spam',
     }
-    cls = AnimatedMaze
-    size = (4, 9, 9)
+    cls = SolvedMaze
+    size = (1, 9, 9)
     obj = cls(**kwargs)
     a = obj.fill(size)
     u.print_array(a, 2)
