@@ -66,7 +66,7 @@ class Maze(un.UnitNoise):
     *   middle | m
     *   right | r
     """
-    def __init__(self, unit: Sequence[int], 
+    def __init__(self, unit: Sequence[int],
                  width: float = .2,
                  inset: Sequence[int] = (0, 1, 1),
                  origin: Sequence[int] = (0, 0, 0),
@@ -291,11 +291,21 @@ class AnimatedMaze(Maze):
     :return: :class:AnimatedMaze object.
     :rtype: rasty.maze.AnimatedMaze
     """
-    def __init__(self, delay=0, linger=0, trace=True, *args, **kwargs) -> None:
+    def __init__(self, unit: Sequence[int],
+                 delay: int = 0,
+                 linger: int = 0,
+                 trace: bool = True,
+                 width: float = .2,
+                 inset: Sequence[int] = (0, 1, 1),
+                 origin: Sequence[int] = (0, 0, 0),
+                 min: int = 0x00,
+                 max: int = 0xff,
+                 repeats: int = 1,
+                 seed: un.Seed = None) -> None:
         self.delay = delay
         self.linger = linger
         self.trace = trace
-        super().__init__(*args, **kwargs)
+        super().__init__(unit, width, inset, origin, min, max, repeats, seed)
 
     # Public methods.
     def fill(self, size: Sequence[int],
@@ -380,11 +390,12 @@ class AnimatedMaze(Maze):
 if __name__ == '__main__':
     import rasty.utility as u
     kwargs = {
-        'delay': 2,
+#         'delay': 2,
+        'linger': 2,
         'width': .34,
-        'inset': (0, 1, 1),
+#         'inset': (0, 0, 0),
         'unit': (1, 3, 3),
-        'origin': 'mm',
+        'origin': 'br',
         'seed': 'spam',
     }
     cls = AnimatedMaze
