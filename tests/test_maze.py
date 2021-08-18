@@ -434,7 +434,7 @@ class SolvedMazeTestCase(SourceTestCase):
         self.fill_test(exp, cls, kwargs)
 
     def test_maze_fill_with_end(self):
-        """When given a end location, enmd the maze solution in
+        """When given a end location, end the maze solution in
         that location in the maze.
         """
         # Expected value.
