@@ -2,7 +2,7 @@
 utility
 ~~~~~~~
 
-Utility functions for rasty.
+Utility functions for imggen.
 """
 from typing import Any
 

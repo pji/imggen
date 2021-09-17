@@ -16,7 +16,7 @@ class ArrayTestCase(ut.TestCase):
         a_list = a.tolist()
         b_list = b.tolist()
         self.assertListEqual(a_list, b_list)
-    
+
     def assertArrayNotEqual(self, a, b):
         """Assert that two numpy.ndarrays are not equal."""
         a_list = a.tolist()
@@ -31,10 +31,10 @@ class SourceTestCase(ArrayTestCase):
         if not size:
             size = exp.shape
         result = obj.fill(size)
-        
+
         # Round actual result to avoid having to type out long float
         # numbers in the expected result.
         act = (result * 0xff).astype(np.uint8)
-        
+
         # Determine test result.
         self.assertArrayEqual(exp, act)

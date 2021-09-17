@@ -1,8 +1,8 @@
 """
-rasty
-~~~~~
+imggen
+~~~~~~
 
-The core module for the rasty package.
+The core module for the imggen package.
 """
 from abc import ABC, abstractmethod
 from inspect import signature
@@ -22,7 +22,7 @@ class Serializable(ABC):
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self.asdict() == other.asdict()
-    
+
     def __repr__(self):
         """Return a string representation of the object."""
         cls = self.__class__.__name__
@@ -41,7 +41,7 @@ class Serializable(ABC):
         sig = signature(self.__init__)
         params = sig.parameters
         return tuple(getattr(self, p) for p in params)
-    
+
     def asdict(self) -> dict[str, Any]:
         """Serialize the object to a dictionary."""
         sig = signature(self.__init__)
@@ -51,10 +51,10 @@ class Serializable(ABC):
 
 class Source(Serializable):
     @abstractmethod
-    def fill(self, size: Sequence[int], 
+    def fill(self, size: Sequence[int],
              loc: Sequence[int] = (0, 0, 0)) -> ndarray:
         """Fill a volume with image data.
-        
+
         :param size: The size of the volume of image data to generate.
         :param loc: (Optional.) How much to shift the starting point
             for the noise generation along each axis.

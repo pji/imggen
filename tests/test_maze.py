@@ -2,11 +2,11 @@
 test_maze
 ~~~~~~~~~~
 
-Unit tests for the rasty.maze module.
+Unit tests for the imggen.maze module.
 """
 import numpy as np
 
-from rasty import maze as m
+from imggen import maze as m
 from tests.common import SourceTestCase
 
 
@@ -43,7 +43,7 @@ class MazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.Maze
         kwargs = {
@@ -51,7 +51,7 @@ class MazeTestCase(SourceTestCase):
             'unit': (1, 3, 3),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -74,7 +74,7 @@ class MazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.Maze
         kwargs = {
@@ -84,7 +84,7 @@ class MazeTestCase(SourceTestCase):
             'unit': (1, 3, 3),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -107,7 +107,7 @@ class MazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.Maze
         kwargs = {
@@ -117,7 +117,7 @@ class MazeTestCase(SourceTestCase):
             'unit': (1, 3, 3),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -140,7 +140,7 @@ class MazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.Maze
         kwargs = {
@@ -150,7 +150,7 @@ class MazeTestCase(SourceTestCase):
             'unit': (1, 3, 3),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -207,7 +207,7 @@ class AnimatedMazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.AnimatedMaze
         kwargs = {
@@ -217,7 +217,7 @@ class AnimatedMazeTestCase(SourceTestCase):
             'origin': 'mm',
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -294,7 +294,7 @@ class AnimatedMazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.AnimatedMaze
         kwargs = {
@@ -306,13 +306,13 @@ class AnimatedMazeTestCase(SourceTestCase):
             'seed': 'spam',
         }
         size = (4, 9, 9)
-        
+
         # Run test and determine result.
         self.maxDiff = None
         self.fill_test(exp, cls, kwargs, size)
 
     def test_animatedmaze_fill_with_linger(self):
-        """If a linger is given, add that number of copies of the 
+        """If a linger is given, add that number of copies of the
         last frame at the end of the image data.
         """
         # Expected value.
@@ -384,7 +384,7 @@ class AnimatedMazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.AnimatedMaze
         kwargs = {
@@ -396,7 +396,7 @@ class AnimatedMazeTestCase(SourceTestCase):
             'seed': 'spam',
         }
         size = (4, 9, 9)
-        
+
         # Run test and determine result.
         self.maxDiff = None
         self.fill_test(exp, cls, kwargs, size)
@@ -421,7 +421,7 @@ class SolvedMazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.SolvedMaze
         kwargs = {
@@ -429,7 +429,7 @@ class SolvedMazeTestCase(SourceTestCase):
             'unit': (1, 3, 3),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -451,7 +451,7 @@ class SolvedMazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.SolvedMaze
         kwargs = {
@@ -460,7 +460,7 @@ class SolvedMazeTestCase(SourceTestCase):
             'unit': (1, 3, 3),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -482,7 +482,7 @@ class SolvedMazeTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = m.SolvedMaze
         kwargs = {
@@ -491,6 +491,6 @@ class SolvedMazeTestCase(SourceTestCase):
             'unit': (1, 3, 3),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)

@@ -6,7 +6,7 @@ Script for creating the statuswriter package.
 """
 import setuptools
 
-from rasty import __version__
+from imggen import __version__
 
 
 with open('requirements.txt') as fh:
@@ -16,7 +16,7 @@ with open('README.rst') as fh:
     long_desc = fh.read()
 
 setuptools.setup(
-    name='rasty',
+    name='imggen',
     version=__version__.__version__,
     description=__version__.__description__,
     long_description=long_desc,

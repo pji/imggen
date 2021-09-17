@@ -1,6 +1,6 @@
-#####
-rasty
-#####
+######
+imggen
+######
 
 A Python module for the procedural generation of image data. Or, to
 put it another way: it makes pretty pictures.
@@ -19,9 +19,9 @@ else who can benefit from this somehow.
 ************************************
 Can I install this package from pip?
 ************************************
-Yes, but rasty is not currently available through PyPI. You will
+Yes, but imggen is not currently available through PyPI. You will
 need to clone the repository to the system you want to install
-rasty on and run the following::
+imggen on and run the following::
 
     pip install path/to/local/copy
 

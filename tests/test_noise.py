@@ -2,11 +2,11 @@
 test_noise
 ~~~~~~~~~~
 
-Unit tests for the rasty.noise module.
+Unit tests for the imggen.noise module.
 """
 import numpy as np
 
-from rasty import noise as n
+from imggen import noise as n
 from tests.common import SourceTestCase
 
 
@@ -39,11 +39,11 @@ class NoiseTestCase(SourceTestCase):
                 [0xe6, 0x73, 0xa0, 0xa5, 0xb4, 0x16, 0x04, 0x4c],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = n.Noise
         kwargs = {'seed': 'spam'}
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -72,14 +72,14 @@ class NoiseTestCase(SourceTestCase):
                 [0xf4, 0x8a, 0xad, 0xaf, 0x26, 0x24, 0x75, 0x85],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = n.Noise
         kwargs = {'seed': 123}
-        
+
         # Run test and determine result.
-        self.fill_test(exp, cls, kwargs)        
-    
+        self.fill_test(exp, cls, kwargs)
+
     def test_noise_accepts_bytes_as_seed(self):
         """Noise should accept a bytes as a seed value."""
         # Expected value.
@@ -105,14 +105,14 @@ class NoiseTestCase(SourceTestCase):
                 [0x39, 0x7d, 0xad, 0xca, 0x9a, 0x01, 0xe0, 0xed],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         cls = n.Noise
         kwargs = {'seed': b'\x00\x01\x02\x03'}
-        
+
         # Run test and determine result.
-        self.fill_test(exp, cls, kwargs)        
-    
+        self.fill_test(exp, cls, kwargs)
+
     def test_noise_with_different_seed_has_different_noise(self):
         """When given different seeds, two instances of Noise
         should return different noise.
@@ -123,7 +123,7 @@ class NoiseTestCase(SourceTestCase):
         size = (2, 8, 8)
         src_a = n.Noise(seed_a)
         src_b = n.Noise(seed_b)
-        
+
         # Run test.
         a = src_a.fill(size)
         b = src_b.fill(size)
@@ -140,7 +140,7 @@ class NoiseTestCase(SourceTestCase):
         size = (2, 8, 8)
         src_a = n.Noise(seed)
         src_b = n.Noise(seed)
-        
+
         # Run test.
         a = src_a.fill(size)
         b = src_b.fill(size)
@@ -156,7 +156,7 @@ class NoiseTestCase(SourceTestCase):
         size = (2, 8, 8)
         src_a = n.Noise()
         src_b = n.Noise()
-        
+
         # Run test.
         a = src_a.fill(size)
         b = src_b.fill(size)

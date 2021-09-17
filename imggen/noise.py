@@ -9,7 +9,7 @@ from typing import Generator, Sequence, Union
 import numpy as np
 from numpy.random import default_rng
 
-from rasty.rasty import Source
+from imggen.imggen import Source
 
 
 # Common types.
@@ -30,35 +30,30 @@ class Noise(Source):
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
     :return: :class:Noise object.
-    :rtype: rasty.noise.Noise
+    :rtype: imggen.noise.Noise
     """
     def __init__(self, seed: Seed = None) -> None:
         """Initialize an instance of Noise."""
         # Store the seed for potential serialization.
         self.seed = seed
-        
+
         # This seeds the random number generator. The code here is
         # maybe a bit opaque. Think about changing it in the future.
-        self._rng = seed
+        self._rng = self._get_rng(seed)
 
     # Properties.
-    @property
-    def _rng(self) -> Generator:
-        return self._Randomized__rng
-    
-    @_rng.setter
-    def _rng(self, seed: Union[None, int, str, bytes]) -> None:
+    def _get_rng(self, seed: Seed) -> np.random._generator.Generator:
         # The seed value for numpy.default_rng cannot be a string.
         # You can't convert directly from string to integer, so
         # convert the string to bytes.
         if isinstance(seed, str):
             seed = bytes(seed, 'utf_8')
-        
+
         # The seed value for numpy.default_rng needs to be an integer.
         if isinstance(seed, bytes):
             seed = int.from_bytes(seed, 'little')
-        self._Randomized__rng = default_rng(seed)
-    
+        return default_rng(seed)
+
     # Public methods.
     def fill(self, size: Sequence[int],
              loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:

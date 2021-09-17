@@ -8,8 +8,8 @@ from typing import Sequence
 
 import numpy as np
 
-from rasty import unitnoise as un
-from rasty.rasty import X, Y, Z
+from imggen import unitnoise as un
+from imggen.imggen import X, Y, Z
 
 
 # Public class.
@@ -30,7 +30,7 @@ class Perlin(un.UnitNoise):
         that can be generated from the object. Unless you have a very
         good reason, this is probably best left at the default.
     :param repeats: (Optional.) The number of times each value can
-        appear on the unit grid. This is involved in setting the 
+        appear on the unit grid. This is involved in setting the
         maximum size of noise that can be generated from the object.
         Unless you have a very good reason, this is probably best left
         at the default.
@@ -42,16 +42,16 @@ class Perlin(un.UnitNoise):
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
     :return: :class:Perlin object.
-    :rtype: rasty.perlin.Perlin
+    :rtype: imggen.perlin.Perlin
     """
-    def __init__(self, unit: Sequence[int], 
+    def __init__(self, unit: Sequence[int],
                  min: int = 0x00,
                  max: int = 0xff,
                  repeats: int = 1,
                  seed: un.Seed = None) -> None:
         """Initialize an instance of UnitNoise."""
         super().__init__(unit, min, max, repeats, seed)
-        
+
     # Public classes.
     def fill(self, size: Sequence[int],
              loc: Sequence[int] = (0, 0, 0)) -> np.array:
@@ -66,7 +66,7 @@ class Perlin(un.UnitNoise):
         return (a + 1) / 2
 
     # Private methods.
-    def _build_grids(self, whole: np.ndarray, 
+    def _build_grids(self, whole: np.ndarray,
                      size: Sequence[float],
                      shape: Sequence[int]) -> dict[str, np.ndarray]:
         """Get the color for the eight vertices that surround each of
@@ -77,14 +77,14 @@ class Perlin(un.UnitNoise):
             grid_whole = whole.copy()
             for axis in range(self._axes):
                 grid_whole[axis] += int(key[axis])
-            
+
             a_grid = grid_whole[Z].astype(np.int64)
             for axis in (Y, X):
                 a_grid = np.take(self._table, a_grid) + grid_whole[axis]
 
             grids[key] = a_grid
         return grids
-    
+
     def _grad(self, loc_mask, grid, parts):
         """To be honest, I don't fully understand what this part of
         the Perlin noise algorithm is doing. It's called the
@@ -129,7 +129,7 @@ OctavePerlin = un.octave_noise_factory(Perlin, defaults)
 
 
 if __name__ == '__main__':
-    import rasty.utility as u
+    import imggen.utility as u
     kwargs = {
         'unit': (1024, 1024, 1024),
         'min': 0x00,

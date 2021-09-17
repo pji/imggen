@@ -2,11 +2,11 @@
 test_perlin
 ~~~~~~~~~~~
 
-Unit tests for the rasty.perlin module.
+Unit tests for the imggen.perlin module.
 """
 import numpy as np
 
-from rasty import perlin as p
+from imggen import perlin as p
 from tests.test_unitnoise import SourceTestCase, UnitNoiseTestCase
 
 
@@ -61,7 +61,7 @@ class OctavePerlinTestCase(SourceTestCase):
                 [0x70, 0x6f, 0x6e, 0x6e, 0x6f, 0x71, 0x73, 0x74],
             ],
         ], dtype=np.uint8)
-       
+
         # Test data and state.
         kwargs = {
             'unit': (1024, 1024, 1024),
@@ -71,14 +71,14 @@ class OctavePerlinTestCase(SourceTestCase):
             'seed': 'eggs',
         }
         cls = p.OctavePerlin
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
 
 class PerlinTestCase(UnitNoiseTestCase):
     cls = p.Perlin
-    
+
     def test_fill(self):
         """Given a volume of image data to fill, Perlin.fill should
         return that volume filled with Perlin noise.
@@ -128,7 +128,7 @@ class PerlinTestCase(UnitNoiseTestCase):
                 [0x62, 0x76, 0x8a, 0x89, 0x7c, 0x73, 0x84, 0xaa, 0xc2, 0xc7],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         kwargs = {
             'unit': (4, 4, 4),
@@ -138,6 +138,6 @@ class PerlinTestCase(UnitNoiseTestCase):
             'seed': 'eggs',
         }
         cls = p.Perlin
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)

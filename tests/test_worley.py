@@ -2,11 +2,11 @@
 test_worley
 ~~~~~~~~~~~
 
-Unit tests for the rasty.worley module.
+Unit tests for the imggen.worley module.
 """
 import numpy as np
 
-import rasty.worley as w
+import imggen.worley as w
 from tests.common import SourceTestCase
 
 
@@ -61,15 +61,15 @@ class WorleyTestCase(SourceTestCase):
                 [0xd1, 0xab, 0x85, 0x62, 0x45, 0x39, 0x45, 0x62],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         kwargs = {
             'points': 6,
             'volume': None,
-            'origin': (0, 0, 0), 
+            'origin': (0, 0, 0),
             'seed': 'spam',
         }
         cls = w.Worley
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)

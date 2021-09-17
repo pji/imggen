@@ -2,18 +2,18 @@
 test_unitnoise
 ~~~~~~~~~~~~~~
 
-Unit tests for the rasty.unitnoise module.
+Unit tests for the imggen.unitnoise module.
 """
 import numpy as np
 
-from rasty import unitnoise as un
+from imggen import unitnoise as un
 from tests.common import SourceTestCase
 
 
 # Base class test cases.
 class UnitNoiseTestCase(SourceTestCase):
     cls = un.UnitNoise
-    
+
     def test_fill(self):
         """Given the size of each dimension of the noise,
         UnitNoise.fill should return an array that contains
@@ -62,14 +62,14 @@ class UnitNoiseTestCase(SourceTestCase):
 
         # Perform test.
         self.fill_test(exp, cls, kwargs)
-    
+
     def test_seeded_table_creation(self):
         """When initialized with a seed value, UnitNoise should use
         that value to seed the random generation of its table.
         """
         # Expected value.
         exp = [3, 1, 0, 2, 3, 5, 0, 2, 1, 5, 4, 4]
-        
+
         # Test data and state.
         kwargs = {
             'unit': (4, 4, 4),
@@ -78,11 +78,11 @@ class UnitNoiseTestCase(SourceTestCase):
             'repeats': 1,
             'seed': 'spam',
         }
-        
+
         # Run test.
         obj = self.cls(**kwargs)
         act = obj._table
-        
+
         # Determine test result.
         self.assertListEqual(exp, act)
 
@@ -90,9 +90,9 @@ class UnitNoiseTestCase(SourceTestCase):
 # Unit noise subclass test cases.
 class CosineCurtainsTestCase(UnitNoiseTestCase):
     cls = un.CosineCurtains
-    
+
     def test_fill(self):
-        """When given the size of the image data to fill, 
+        """When given the size of the image data to fill,
         CosineCurtains.fill should return an array filled with
         randomized data that looks somewhat like curtains.
         """
@@ -129,7 +129,7 @@ class CosineCurtainsTestCase(UnitNoiseTestCase):
                 [0x5e, 0x5f, 0x63, 0x67, 0x69, 0x61, 0x4d, 0x39],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         kwargs = {
             'unit': (4, 4, 4),
@@ -138,14 +138,14 @@ class CosineCurtainsTestCase(UnitNoiseTestCase):
             'seed': 'spam',
         }
         cls = un.CosineCurtains
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
 
 class CurtainsTestCase(UnitNoiseTestCase):
     cls = un.Curtains
-    
+
     def test_fill(self):
         """When given the size of the image data to fill, Curtains.fill
         should return an array filled with randomized data that looks
@@ -184,7 +184,7 @@ class CurtainsTestCase(UnitNoiseTestCase):
                 [0x06, 0x13, 0x21, 0x87, 0xed, 0xaa, 0x67, 0xae],
             ],
         ], dtype=np.uint8)
-        
+
         # Test data and state.
         kwargs = {
             'unit': (2, 2, 2),
@@ -193,14 +193,14 @@ class CurtainsTestCase(UnitNoiseTestCase):
             'seed': 'spam',
         }
         cls = un.Curtains
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
 
 class OctaveCosineCurtainsTestCase(SourceTestCase):
     def test_fill(self):
-        """When given the size of the image data to fill, 
+        """When given the size of the image data to fill,
         OctaveCosineCurtain.fill should return an array filled
         with unit noise.
         """
@@ -237,22 +237,22 @@ class OctaveCosineCurtainsTestCase(SourceTestCase):
                 [0x66, 0x79, 0x5c, 0xb9, 0x7e, 0xb5, 0x77, 0xbb],
             ],
         ], dtype=np.uint8)
-       
+
         # Tests data and state.
         cls = un.OctaveCosineCurtains
         kwargs = {
             'unit': (4, 4, 4),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
 
 class OctaveCurtainsTestCase(SourceTestCase):
     def test_fill(self):
-        """When given the size of the image data to fill, 
-        OctaveCurtain.fill should return an array filled with 
+        """When given the size of the image data to fill,
+        OctaveCurtain.fill should return an array filled with
         unit noise.
         """
         # Expected value.
@@ -288,22 +288,22 @@ class OctaveCurtainsTestCase(SourceTestCase):
                 [0x66, 0x79, 0x5c, 0xb9, 0x7e, 0xb5, 0x77, 0xbb],
             ],
         ], dtype=np.uint8)
-       
+
         # Tests data and state.
         cls = un.OctaveCurtains
         kwargs = {
             'unit': (4, 4, 4),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
 
 class OctaveUnitNoise(SourceTestCase):
     def test_fill(self):
-        """When given the size of the image data to fill, 
-        OctaveUnitNoise.fill should return an array filled with 
+        """When given the size of the image data to fill,
+        OctaveUnitNoise.fill should return an array filled with
         unit noise.
         """
         # Expected value.
@@ -339,14 +339,14 @@ class OctaveUnitNoise(SourceTestCase):
                 [0x80, 0xc3, 0x6c, 0x87, 0x41, 0x14, 0x91, 0x34],
             ],
         ], dtype=np.uint8)
-       
+
         # Tests data and state.
         cls = un.OctaveUnitNoise
         kwargs = {
             'unit': (4, 4, 4),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
 
@@ -359,16 +359,16 @@ class OctaveNoiseFactory(SourceTestCase):
         """
         # Expected value.
         exp = un.UnitNoise
-        
+
         # Run test.
         result = un.octave_noise_factory(exp, un.OctaveNoiseDefaults())
-        
+
         # Extract actual value.
         act = result.source
-        
+
         # Determine test result.
         self.assertEqual(exp, act)
-    
+
     def test_set_defaults(self):
         """Created subclasses of OctaveNoise should set the octave
         noise parameter and unit noise parameter defaults.
@@ -385,18 +385,18 @@ class OctaveNoiseFactory(SourceTestCase):
             'repeats': 1,
             'seed': None,
         }
-        
+
         # Test data and state.
         noise = un.UnitNoise
         defaults = un.OctaveNoiseDefaults(**exp)
-        
+
         # Run test.
         result = un.octave_noise_factory(noise, defaults)
-        
+
         # Extract actual value.
         obj = result()
         act = obj.asdict()
-        
+
         # Determine test result.
         self.assertDictEqual(exp, act)
 
@@ -437,7 +437,7 @@ class OctaveNoiseFactory(SourceTestCase):
                 [0x80, 0xc3, 0x6c, 0x87, 0x41, 0x14, 0x91, 0x34],
             ],
         ], dtype=np.uint8)
-       
+
         # Tests data and state.
         noise = un.UnitNoise
         cls = un.octave_noise_factory(noise, un.OctaveNoiseDefaults())
@@ -445,10 +445,10 @@ class OctaveNoiseFactory(SourceTestCase):
             'unit': (4, 4, 4),
             'seed': 'spam',
         }
-        
+
         # Run test and determine result.
         self.fill_test(exp, cls, kwargs)
-    
+
     def test_set_properties(self):
         """Created subclasses of OctaveNoise should set the octave
         noise parameters and unit noise parameters.
@@ -465,16 +465,16 @@ class OctaveNoiseFactory(SourceTestCase):
             'repeats': 0,
             'seed': 'spam',
         }
-        
+
         # Test data and state.
         noise = un.UnitNoise
         cls = un.octave_noise_factory(noise, un.OctaveNoiseDefaults())
-        
+
         # Run test.
         result = cls(**exp)
-        
+
         # Extract actual value.
         act = result.asdict()
-        
+
         # Determine test result.
         self.assertDictEqual(exp, act)

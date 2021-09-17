@@ -2,11 +2,11 @@
 test_patterns
 ~~~~~~~~~~~~~
 
-Unit tests for the rasty.patterns module.
+Unit tests for the imggen.patterns module.
 """
 import numpy as np
 
-from rasty import patterns as p
+from imggen import patterns as p
 from tests.common import ArrayTestCase, SourceTestCase
 
 

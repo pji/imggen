@@ -1,12 +1,12 @@
 """
-test_rasty
-~~~~~~~~~~
+test_imggen
+~~~~~~~~~~~
 
-Unit tests for the rasty.rasty module.
+Unit tests for the imggen.imggen module.
 """
 import unittest as ut
 
-from rasty import rasty as r
+from imggen import imggen as r
 
 
 # Test cases.
@@ -21,17 +21,17 @@ class SerializableTestCase(ut.TestCase):
             'spam': 1,
             'eggs': 2,
         }
-        
+
         # Test data and state.
         class Bacon(r.Serializable):
             def __init__(self, spam, eggs):
                 self.spam = spam
                 self.eggs = eggs
-        
+
         # Run test.
         bacon = Bacon(**exp)
         act = bacon.asdict()
-        
+
         # Determine test results.
         self.assertDictEqual(exp, act)
 
@@ -42,17 +42,17 @@ class SerializableTestCase(ut.TestCase):
         """
         # Expected values.
         exp = (1, 2)
-        
+
         # Test data and state.
         class Bacon(r.Serializable):
             def __init__(self, spam, eggs):
                 self.spam = spam
                 self.eggs = eggs
-        
+
         # Run test.
         bacon = Bacon(*exp)
         act = bacon.asargs()
-        
+
         # Determine test results.
         self.assertTupleEqual(exp, act)
 
@@ -72,7 +72,7 @@ class SerializableTestCase(ut.TestCase):
         }
         a = Bacon(**kwargs)
         b = Bacon(**kwargs)
-        
+
         # Run test and determine result.
         self.assertTrue(a == b)
 
@@ -88,32 +88,32 @@ class SerializableTestCase(ut.TestCase):
 
         a = Bacon(1, 2)
         b = Bacon(1, 3)
-        
+
         # Run test and determine result.
         self.assertFalse(a == b)
 
     def test_equal_with_other_class(self):
         """When comparing the equality of a Serializable subclass
-        with a different class, the Serializable should return 
+        with a different class, the Serializable should return
         NotImplemented.
         """
         # Expected value.
-        
+
         # Test data and state.
         class Bacon(r.Serializable):
             was_tested = False
-            
+
             def __eq__(self, other):
                 self.was_tested = True
                 return super().__eq__(other)
-            
+
             def __init__(self, spam, eggs):
                 self.spam = spam
                 self.eggs = eggs
-        
+
         class Sausage:
             was_tested = False
-            
+
             def __eq__(self, other):
                 self.was_tested = True
                 return False
@@ -124,10 +124,10 @@ class SerializableTestCase(ut.TestCase):
         }
         a = Bacon(**kwargs)
         b = Sausage()
-        
+
         # Run test and determine result.
         _ = a == b
-        
+
         # Determine test results.
         self.assertTrue(a.was_tested)
         self.assertTrue(b.was_tested)
@@ -138,7 +138,7 @@ class SerializableTestCase(ut.TestCase):
         """
         # Expected value.
         exp = 'Bacon(spam=1, eggs=2)'
-        
+
         # Test data and state.
         class Bacon(r.Serializable):
             def __init__(self, spam, eggs):
@@ -146,10 +146,10 @@ class SerializableTestCase(ut.TestCase):
                 self.eggs = eggs
 
         bacon = Bacon(1, 2)
-        
+
         # Run test.
         act = repr(bacon)
-        
+
         # Determine test result.
         self.assertEqual(exp, act)
 
@@ -160,7 +160,7 @@ class SerializableTestCase(ut.TestCase):
         """
         # Expected value.
         exp = "Bacon(spam='0123...556575859')"
-        
+
         # Test data and state.
         class Bacon(r.Serializable):
             def __init__(self, spam):
@@ -168,10 +168,10 @@ class SerializableTestCase(ut.TestCase):
 
         spam = ''.join(str(n) for n in range(60))
         bacon = Bacon(spam)
-        
+
         # Run test.
         act = repr(bacon)
-        
+
         # Determine test result.
         self.assertEqual(exp, act)
 
@@ -182,7 +182,7 @@ class SerializableTestCase(ut.TestCase):
         """
         # Expected value.
         exp = "Bacon(spam=1, eggs='2', sausage=b'3')"
-        
+
         # Test data and state.
         class Bacon(r.Serializable):
             def __init__(self, spam, eggs, sausage):
@@ -191,10 +191,10 @@ class SerializableTestCase(ut.TestCase):
                 self.sausage = sausage
 
         bacon = Bacon(1, '2', b'3')
-        
+
         # Run test.
         act = repr(bacon)
-        
+
         # Determine test result.
         self.assertEqual(exp, act)
 
@@ -206,11 +206,11 @@ class SourceTestCase(ut.TestCase):
         exp_ex = TypeError
         exp_msg = ("Can't instantiate abstract class Spam "
                    "with abstract method fill")
-        
+
         # Test data and state.
         class Spam(r.Source):
             pass
-        
+
         # Run test and determine result.
         with self.assertRaisesRegex(exp_ex, exp_msg):
             spam = Spam()

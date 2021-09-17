@@ -8,7 +8,7 @@ from typing import Sequence
 
 import numpy as np
 
-from rasty.noise import Seed, Noise
+from imggen.noise import Seed, Noise
 
 
 # Public classes.
@@ -42,7 +42,7 @@ class Worley(Noise):
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
     :return: :class:Worley object.
-    :rtype: rasty.worley.Worley
+    :rtype: imggen.worley.Worley
     """
     def __init__(self, points: int,
                  volume: Sequence[int] = None,
@@ -57,10 +57,10 @@ class Worley(Noise):
              loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
         """Return a space filled with noise."""
         a = np.zeros(size, dtype=float)
-        volume = self.volume
-        if volume is None:
-            volume = size
-        volume = np.array(volume)
+        volume_size = self.volume
+        if volume_size is None:
+            volume_size = size
+        volume = np.array(volume_size)
 
         # Place the seeds in the overall volume of noise.
         seeds = self._rng.random((self.points, 3))
@@ -85,18 +85,3 @@ class Worley(Noise):
     def _hypot(self, point: Sequence[int], indices: np.ndarray) -> np.ndarray:
         axis_dist = [p - i for p, i in zip(point, indices)]
         return np.sqrt(sum(d ** 2 for d in axis_dist))
-
-
-if __name__ == '__main__':
-    import rasty.utility as u
-    kwargs = {
-        'points': 6,
-        'volume': None,
-        'origin': (0, 0, 0), 
-        'seed': 'spam',
-    }
-    cls = Worley
-    size = (3, 12, 8)
-    obj = cls(**kwargs)
-    a = obj.fill(size)
-    u.print_array(a, 2)

@@ -8,15 +8,15 @@ from typing import NamedTuple, Sequence
 
 import numpy as np
 
-from rasty.noise import Noise, Seed
-from rasty.rasty import Source, X, Y, Z
-from rasty.utility import lerp
+from imggen.noise import Noise, Seed
+from imggen.imggen import Source, X, Y, Z
+from imggen.utility import lerp
 
 
 # Public classes.
 class UnitNoise(Noise):
     """Create image noise that is based on a unit grid.
-    
+
     :param unit: The number of pixels between vertices along an
         axis on the unit grid. The vertices are the locations where
         colors for the gradient are set. This is involved in setting
@@ -29,7 +29,7 @@ class UnitNoise(Noise):
         grid. This is involved in setting the maximum size of noise
         that can be generated from the object.
     :param repeats: (Optional.) The number of times each value can
-        appear on the unit grid. This is involved in setting the 
+        appear on the unit grid. This is involved in setting the
         maximum size of noise that can be generated from the object.
     :param seed: (Optional.) An int, bytes, or string used to seed
         therandom number generator used to generate the image data.
@@ -41,8 +41,8 @@ class UnitNoise(Noise):
     """
     # The number of dimensions the noise occurs in.
     _axes = 3
-    
-    def __init__(self, unit: Sequence[int], 
+
+    def __init__(self, unit: Sequence[int],
                  min: int = 0x00,
                  max: int = 0xff,
                  repeats: int = 0,
@@ -54,14 +54,14 @@ class UnitNoise(Noise):
         self.max = max
         self.repeats = repeats
         super().__init__(seed)
-        
+
         # Initialize the randomized table.
         self._table = self._init_table()
-        
+
         # Prime the names of the grids used for interpolation.
         tmp = '{:>0' + str(self._axes) + 'b}'
         self._hashes = [tmp.format(n) for n in range(2 ** self._axes)]
-    
+
     # Public methods.
     def fill(self, size: Sequence[int],
              location: Sequence[int] = (0, 0, 0)) -> np.ndarray:
@@ -73,7 +73,7 @@ class UnitNoise(Noise):
         return a / (self.max - self.min)
 
     # Private methods.
-    def _build_grids(self, whole: np.ndarray, 
+    def _build_grids(self, whole: np.ndarray,
                      size: Sequence[float],
                      shape: Sequence[int]) -> dict[str, np.ndarray]:
         """Get the color for the eight vertices that surround each of
@@ -85,7 +85,7 @@ class UnitNoise(Noise):
             a_grid = np.zeros(size, dtype=np.int64)
             for axis in range(self._axes):
                 grid_whole[axis] += int(key[axis])
-            
+
             for axis in range(self._axes):
                 remaining_axes = range(self._axes)[axis + 1:]
                 axis_incr = 1
@@ -93,11 +93,11 @@ class UnitNoise(Noise):
                     axis_incr *= shape[r_axis]
                 a_grid += grid_whole[axis] * axis_incr
                 a_grid %= len(self._table)
-            
+
             a_grid = np.take(self._table, a_grid)
             grids[key] = a_grid
         return grids
-    
+
     def _calc_unit_grid_shape(self, size: Sequence[int]):
         """Determine the shape of the unit grid."""
         shape = []
@@ -106,9 +106,9 @@ class UnitNoise(Noise):
             length = -(-size[axis] // self.unit[axis])
             length = int(length)
             shape.append(length)
-        
+
         return shape
-    
+
     def _init_table(self) -> list[int]:
         """Create the table of randomized values for the unit grid."""
         table = []
@@ -118,8 +118,8 @@ class UnitNoise(Noise):
         return table
 
     def _map_unit_grid(self, size: tuple[int, int, int],
-                   location: tuple[int, int, int]
-                   ) -> tuple[np.ndarray, np.ndarray]:
+                       location: tuple[int, int, int]
+                       ) -> tuple[np.ndarray, np.ndarray]:
         """Map the image data to the unit grid."""
         # Map out the space.
         a = np.indices(size, float)
@@ -137,7 +137,7 @@ class UnitNoise(Noise):
         whole = (a // 1).astype(int)
         parts = a - whole
         return whole, parts
-    
+
     def _interp(self, grids: np.ndarray, parts: np.ndarray) -> np.ndarray:
         """Interpolate the values of each pixel of image data."""
         if len(grids) > 2:
@@ -149,15 +149,15 @@ class UnitNoise(Noise):
                 axis = len(new_key)
                 new_grids[new_key] = lerp(grids[even], grids[odd], parts[axis])
             return self._interp(new_grids, parts)
-        
+
         return lerp(grids['0'], grids['1'], parts[Z])
-        
+
 
 class Curtains(UnitNoise):
     """Unit noise that creates vertical lines, like curtains."""
     # The number of dimensions the noise occurs in.
     _axes = 2
-    
+
     # Public methods.
     def fill(self, size: Sequence[int],
              loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
@@ -175,8 +175,8 @@ class CosineCurtains(Curtains):
     """
     # Private methods.
     def _map_unit_grid(self, size: tuple[int, int, int],
-                   loc: tuple[int, int, int]
-                   ) -> tuple[np.ndarray, np.ndarray]:
+                       loc: tuple[int, int, int]
+                       ) -> tuple[np.ndarray, np.ndarray]:
         """Map the image data to the unit grid."""
         whole, parts = super()._map_unit_grid(size, loc)
         parts = (1 - np.cos(parts * np.pi)) / 2
@@ -196,11 +196,11 @@ class OctaveNoiseDefaults(NamedTuple):
     seed: Seed = None
 
 
-def octave_noise_factory(source: UnitNoise, 
+def octave_noise_factory(source: UnitNoise,
                          defaults: OctaveNoiseDefaults) -> type:
     class OctaveNoise(Source):
         source = None
-        
+
         def __init__(self, octaves: int = defaults.octaves,
                      persistence: float = defaults.persistence,
                      amplitude: float = defaults.amplitude,
@@ -219,7 +219,7 @@ def octave_noise_factory(source: UnitNoise,
             self.max = max
             self.repeats = repeats
             self.seed = seed
-    
+
         def fill(self, size: Sequence[int],
                  loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
             a = np.zeros(tuple(size), dtype=float)
@@ -254,7 +254,7 @@ OctaveUnitNoise = octave_noise_factory(UnitNoise, defaults)
 
 
 if __name__ == '__main__':
-    import rasty.utility as u
+    import imggen.utility as u
     kwargs = {
         'unit': (4, 4, 4),
         'seed': 'spam',

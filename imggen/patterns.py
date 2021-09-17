@@ -2,14 +2,14 @@
 patterns
 ~~~~~~~~
 
-mage data sources for the rasty module that create non-random patterns.
+mage data sources for the imggen module that create non-random patterns.
 """
 from typing import Sequence
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont                 # type:ignore
 
-from rasty.rasty import Source, X, Y, Z
+from imggen.imggen import Source, X, Y, Z
 
 
 class Box(Source):
@@ -20,7 +20,7 @@ class Box(Source):
     :param color: The color of the box. This is a float within the
         range 0 <= x <= 1.
     :return: A :class:Box object.
-    :rtype: rasty.patterns.Box
+    :rtype: imggen.patterns.Box
     """
     def __init__(self, origin: Sequence[int],
                  dimensions: Sequence[int],
@@ -52,7 +52,7 @@ class Gradient(Source):
         the position of the stop and the second being the color value
         of the stop.
     :return: :class:Gradient object.
-    :rtype: rasty.patterns.Gradient
+    :rtype: imggen.patterns.Gradient
     """
     def __init__(self, direction: str = 'h',
                  stops: Sequence[float] = (0, 0, 1, 1)) -> None:
@@ -61,13 +61,13 @@ class Gradient(Source):
         # Parse the stops for the gradient.
         if isinstance(stops, str):
             stops = stops.split(',')
-        self.stops = stops
         self.stops = []
         for index in range(len(stops))[::2]:
             try:
                 stop = [float(stops[index]), float(stops[index + 1])]
             except IndexError:
-                raise ValueError(TEXT['gradient_error'])
+                msg = 'Missing color value for gradient stop.'
+                raise ValueError(msg)
             self.stops.append(stop)
 
         # If the stops don't start at index zero, add a stop for
@@ -146,7 +146,7 @@ class Lines(Source):
         gradient or 'v' for a vertical gradient.
     :param length: (Optional.) The distance between each line.
     :return: :class:Lines object.
-    :rtype: rasty.patterns.Lines
+    :rtype: imggen.patterns.Lines
     """
     def __init__(self,
                  direction: str = 'h',
@@ -181,7 +181,7 @@ class Rays(Source):
     :param offset: (Optional.) Rotate the rays around the generation
         point. This is measured in radians.
     :return: :class:Rays object.
-    :rtype: rasty.patterns.Rays
+    :rtype: imggen.patterns.Rays
     """
     def __init__(self, count: int,
                  offset: float = 0) -> None:
@@ -241,7 +241,7 @@ class Rings(Source):
     :param count: (Optional.) The number of rings to draw. The
         default is one.
     :return: :class:Rings object.
-    :rtype: rasty.patterns.Rings
+    :rtype: imggen.patterns.Rings
     """
     def __init__(self, radius: float,
                  width: float,
@@ -311,7 +311,7 @@ class Spheres(Source):
         'y' for columns to be offset. It defaults to None for no
         offset.
     :return: :class:Spheres object.
-    :rtype: rasty.patterns.Spheres
+    :rtype: imggen.patterns.Spheres
     """
     def __init__(self, radius: float,
                  offset: str = None) -> None:
@@ -377,7 +377,7 @@ class Spot(Source):
 
     :param radius: The radius of the spot.
     :return: :class:Spot object.
-    :rtype: rasty.patterns.Spot
+    :rtype: imggen.patterns.Spot
     """
     def __init__(self, radius: float, *args, **kwargs) -> None:
         self.radius = float(radius)
@@ -499,7 +499,7 @@ class Waves(Source):
         each circle remains constant (linear) or increases
         (geometric). Defaults to linear.
     :returns: :class:Waves object.
-    :rtype: rasty.patterns.Waves
+    :rtype: imggen.patterns.Waves
     """
     def __init__(self, length: float,
                  growth: str = 'l') -> None:
@@ -527,7 +527,7 @@ class Waves(Source):
             a = abs(a - .5) * 2
 
         elif self.growth == 'g' or self.growth == 'geometric':
-            in_length = 0
+            in_length = 0.0
             out_length = self.length
             while in_length < np.max(c):
                 m = np.ones(a.shape, bool)

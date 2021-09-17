@@ -9,8 +9,8 @@ from typing import Sequence, Union
 
 import numpy as np
 
-from rasty import unitnoise as un
-from rasty.rasty import X, Y, Z
+from imggen import unitnoise as un
+from imggen.imggen import X, Y, Z
 
 
 # Public classes.
@@ -36,7 +36,7 @@ class Maze(un.UnitNoise):
     :param max: (Optional.) The maximum value of a vertex of the unit
         grid. This is involved in setting the path through the maze.
     :param repeats: (Optional.) The number of times each value can
-        appear on the unit grid. This is involved in setting the 
+        appear on the unit grid. This is involved in setting the
         maximum size of noise that can be generated from the object.
     :param seed: (Optional.) An int, bytes, or string used to seed
         therandom number generator used to generate the image data.
@@ -46,7 +46,7 @@ class Maze(un.UnitNoise):
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
     :return: :class:Maze object.
-    :rtype: rasty.maze.Maze
+    :rtype: imggen.maze.Maze
 
     Descriptive Origins
     -------------------
@@ -287,7 +287,7 @@ class AnimatedMaze(Maze):
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
     :return: :class:AnimatedMaze object.
-    :rtype: rasty.maze.AnimatedMaze
+    :rtype: imggen.maze.AnimatedMaze
     """
     def __init__(self, unit: Sequence[int],
                  delay: int = 0,
@@ -418,7 +418,7 @@ class SolvedMaze(Maze):
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
     :return: :class:SolvedMaze object.
-    :rtype: rasty.maze.SolvedPath
+    :rtype: imggen.maze.SolvedPath
 
     Descriptive Origins
     -------------------
@@ -547,15 +547,15 @@ class SolvedMaze(Maze):
         """Determine the steps needed to move from one location in the
         path to another.
         """
-        # Determine the maximum number of steps it could possibly 
+        # Determine the maximum number of steps it could possibly
         # take to use to determine when the algorithm gets stuck
         # in a loop because there is no solution.
         max_steps = unit_dim[Y] * unit_dim[X]
-        
+
         # Get a map of where you can go with one step from each
         # location in the grid
         available_steps = self._map_available_steps(path)
-        
+
         # Calculate the starting and ending locations.
         start_ = tuple(self._calc_origin(self.start, unit_dim))
         end = tuple(self._calc_origin(self.end, unit_dim))
@@ -569,7 +569,7 @@ class SolvedMaze(Maze):
             paths.append(path)
 
         # Follow each path possible from the starting point, breaking
-        # once one of the paths reaches the exit or the paths take 
+        # once one of the paths reaches the exit or the paths take
         # enough steps to have reached every position in the maze
         # without finding the exit.
         step_count = 0
@@ -578,12 +578,12 @@ class SolvedMaze(Maze):
             new_paths = []
             for path in paths:
                 step = path[-1]
-                
+
                 # Hurray, we found the exit!
                 if step[1] == end:
                     solution = path
                     break
-                
+
                 # We haven't found the exit yet, so keep looking.
                 options = available_steps[step[1]]
                 options = [option for option in options if option != step[0]]
@@ -592,32 +592,27 @@ class SolvedMaze(Maze):
                     new_step = (step[1], option)
                     new_path.append(new_step)
                     new_paths.append(new_path)
-            
+
             # Since we didn't find the exit, get ready for the next
             # iteration.
             paths = new_paths
             step_count += 1
-        
+
         # If we took enough steps to reach every position in the
         # maze without finding an exit, there must not be a solution.
         if not solution:
             raise ValueError('No solution exists for path.')
-        
+
         # Return the solution.
         return solution
 
 
 if __name__ == '__main__':
-    import rasty.utility as u
+    import imggen.utility as u
     kwargs = {
-#         'delay': 2,
-#         'linger': 2,
-#         'start': 'bl',
         'end': 'bl',
         'width': .34,
-#         'inset': (0, 0, 0),
         'unit': (1, 3, 3),
-#         'origin': 'br',
         'seed': 'spam',
     }
     cls = SolvedMaze
