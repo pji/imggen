@@ -11,6 +11,7 @@ from imggen import __version__
 
 with open('requirements.txt') as fh:
     reqs = fh.readlines()
+    reqs = [req for req in reqs if not req.startswith('-')]
 
 with open('README.rst') as fh:
     long_desc = fh.read()
