@@ -55,8 +55,8 @@ class Noise(Source):
         return default_rng(seed)
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(self, size: tuple[int, ...],
+             loc: tuple[int, ...] = (0, 0, 0)) -> np.ndarray:
         # Random number generation is linear and unidirectional. In
         # order to give the illusion of their being a space to move
         # in, we define the location of the first number generated

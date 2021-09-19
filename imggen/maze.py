@@ -5,12 +5,16 @@ maze
 Image data sources that create maze-like paths.
 """
 from operator import itemgetter
-from typing import Sequence, Union
+from typing import Any, List, Sequence, Tuple, Union
 
 import numpy as np
 
 from imggen import unitnoise as un
 from imggen.imggen import X, Y, Z
+
+
+# Types.
+MazePath = List[Tuple[Any, Tuple[Any, ...]]]
 
 
 # Public classes.
@@ -113,7 +117,7 @@ class Maze(un.UnitNoise):
         return values, unit_dim
 
     def _build_path(self, values: np.ndarray,
-                    unit_dim: Sequence[int]) -> np.ndarray:
+                    unit_dim: Sequence[int]) -> MazePath:
         """Create the steps in the path."""
         # The cursor will be used to determine our current position
         # on the grid as we create the path.
@@ -605,18 +609,3 @@ class SolvedMaze(Maze):
 
         # Return the solution.
         return solution
-
-
-if __name__ == '__main__':
-    import imggen.utility as u
-    kwargs = {
-        'end': 'bl',
-        'width': .34,
-        'unit': (1, 3, 3),
-        'seed': 'spam',
-    }
-    cls = SolvedMaze
-    size = (1, 9, 9)
-    obj = cls(**kwargs)
-    a = obj.fill(size)
-    u.print_array(a, 2)

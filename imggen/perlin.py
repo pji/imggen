@@ -53,8 +53,8 @@ class Perlin(un.UnitNoise):
         super().__init__(unit, min, max, repeats, seed)
 
     # Public classes.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.array:
+    def fill(self, size: tuple[int, ...],
+             loc: tuple[int, ...] = (0, 0, 0)) -> np.ndarray:
         """Return a space filled with Perlin noise."""
         shape = self._calc_unit_grid_shape(size)
         whole, parts = self._map_unit_grid(size, loc)

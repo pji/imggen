@@ -38,21 +38,21 @@ class Serializable(ABC):
 
     def asargs(self) -> tuple:
         """Serialize the object to a tuple."""
-        sig = signature(self.__init__)
+        sig = signature(self.__init__)                      # type: ignore
         params = sig.parameters
         return tuple(getattr(self, p) for p in params)
 
     def asdict(self) -> dict[str, Any]:
         """Serialize the object to a dictionary."""
-        sig = signature(self.__init__)
+        sig = signature(self.__init__)                      # type: ignore
         params = sig.parameters
         return {k: getattr(self, k) for k in params}
 
 
 class Source(Serializable):
     @abstractmethod
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> ndarray:
+    def fill(self, size: tuple[int, ...],
+             loc: tuple[int, ...] = (0, 0, 0)) -> ndarray:
         """Fill a volume with image data.
 
         :param size: The size of the volume of image data to generate.
