@@ -4,19 +4,8 @@ utility
 
 Utility functions for imggen.
 """
-from typing import Any
-
 import numpy as np
-
-
-# Common types.
-# The ArrayLike type is intended to match numpy's array-like
-# descriptive type, which is anything that numpy.array can turn
-# into a numpy.ndarray object. That is, ultimately, anything, but
-# use of ArrayLike in the type hints is intended to communicate
-# the data will be converted to an ndarray, which may have
-# consequences.
-ArrayLike = Any
+from numpy.typing import ArrayLike
 
 
 # Debugging utilities.
@@ -59,7 +48,7 @@ def lerp(a: ArrayLike, b: ArrayLike, x: ArrayLike) -> np.ndarray:
         >>> lerp(a, b, x)
         array([2., 3., 4.])
     """
-    a = np.array(a.copy(), dtype=float)
-    b = np.array(b.copy(), dtype=float)
-    x = np.array(x.copy(), dtype=float)
+    a = np.array(a, dtype=float)
+    b = np.array(b, dtype=float)
+    x = np.array(x, dtype=float)
     return a * (1 - x) + b * x

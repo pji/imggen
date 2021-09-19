@@ -6,7 +6,7 @@ The core module for the imggen package.
 """
 from abc import ABC, abstractmethod
 from inspect import signature
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from numpy import ndarray
 

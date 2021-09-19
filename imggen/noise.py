@@ -4,7 +4,7 @@ noise
 
 Image data sources that contain a random element.
 """
-from typing import Generator, Sequence, Union
+from typing import Union
 
 import numpy as np
 from numpy.random import default_rng
