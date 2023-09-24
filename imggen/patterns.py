@@ -4,10 +4,11 @@ patterns
 
 mage data sources for the imggen module that create non-random patterns.
 """
-from typing import Sequence
+from typing import Optional, Sequence
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont                 # type:ignore
+from numpy.typing import NDArray
 
 from imggen.imggen import Source, X, Y, Z
 
@@ -148,17 +149,20 @@ class Lines(Source):
     :return: :class:Lines object.
     :rtype: imggen.patterns.Lines
     """
-    def __init__(self,
-                 direction: str = 'h',
-                 length: float = 64) -> None:
+    def __init__(
+        self, direction: str = 'h',
+        length: float = 64
+    ) -> None:
         self.direction = direction
         self.length = float(length)
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> NDArray[np.float_]:
         """Return a space filled with noise."""
-        values = np.indices(size)
+        values = np.indices(size, dtype=float)
         for axis in X, Y, Z:
             values[axis] += loc[axis]
         if self.direction == 'v':
@@ -313,17 +317,21 @@ class Spheres(Source):
     :return: :class:Spheres object.
     :rtype: imggen.patterns.Spheres
     """
-    def __init__(self, radius: float,
-                 offset: str = None) -> None:
+    def __init__(
+        self, radius: float,
+        offset: str = ''
+    ) -> None:
         self.radius = float(radius)
         self.offset = offset
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> NDArray[np.float_]:
         """Return a space filled with noise."""
         # Map out the volume of space that will be created.
-        a = np.indices(size)
+        a = np.indices(size, dtype=float)
         for axis in X, Y, Z:
             a[axis] += loc[axis]
 
@@ -406,22 +414,24 @@ class Spot(Source):
 
 class Text(Source):
     """Place text within the image."""
-    def __init__(self, text: str,
-                 font: str = 'Verdana',
-                 size: float = 10,
-                 face: int = 0,
-                 encoding: str = 'unic',
-                 layout_engine: str = None,
-                 origin: tuple[int, int] = (0, 0),
-                 start: int = 0,
-                 duration: int = None,
-                 fill_color: float = 1,
-                 bg_color: float = 0,
-                 spacing: float = .2,
-                 spacing_mode: str = 'proportional',
-                 align: str = 'left',
-                 stroke_width: float = 0,
-                 stroke_fill: float = 0) -> None:
+    def __init__(
+        self, text: str,
+        font: str = 'Verdana',
+        size: float = 10,
+        face: int = 0,
+        encoding: str = 'unic',
+        layout_engine: str = '',
+        origin: tuple[int, int] = (0, 0),
+        start: int = 0,
+        duration: Optional[int] = None,
+        fill_color: float = 1,
+        bg_color: float = 0,
+        spacing: float = .2,
+        spacing_mode: str = 'proportional',
+        align: str = 'left',
+        stroke_width: float = 0,
+        stroke_fill: float = 0
+    ) -> None:
         self.text = text
         self.font = font
         self.size = size
@@ -457,8 +467,10 @@ class Text(Source):
                                         self.encoding, self.layout_engine)
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> np.ndarray:
         """Return a space filled with noise."""
         a = np.zeros(size, float)
         origin = [o + l for o, l in zip(self.origin, loc[Y:])]
@@ -512,7 +524,7 @@ class Waves(Source):
              loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
         """Return a space filled with noise."""
         # Map out the volume of space that will be created.
-        a = np.zeros(size)
+        a = np.zeros(size, dtype=float)
         c = np.indices(size, dtype=float)
         center = [(n - 1) / 2 + o for n, o in zip(size, loc)]
         for axis in X, Y, Z:

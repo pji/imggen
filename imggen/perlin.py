@@ -7,6 +7,7 @@ Image data sources that create Perlin noise.
 from typing import Sequence
 
 import numpy as np
+from numpy.typing import NDArray
 
 from imggen import unitnoise as un
 from imggen.imggen import X, Y, Z
@@ -53,8 +54,10 @@ class Perlin(un.UnitNoise):
         super().__init__(unit, min, max, repeats, seed)
 
     # Public classes.
-    def fill(self, size: tuple[int, ...],
-             loc: tuple[int, ...] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> NDArray[np.float_]:
         """Return a space filled with Perlin noise."""
         shape = self._calc_unit_grid_shape(size)
         whole, parts = self._map_unit_grid(size, loc)

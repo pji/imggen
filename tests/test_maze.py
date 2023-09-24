@@ -5,12 +5,23 @@ test_maze
 Unit tests for the imggen.maze module.
 """
 import numpy as np
+import pytest as pt
 
 from imggen import maze as m
 from tests.common import SourceTestCase
 
 
 # Test cases.
+@pt.mark.skip
+class TestMaze:
+    def test_fill(self):
+        """When given the size of an array, :meth:`Maze.fill` should
+        return an array of that size filled with a maze.
+        """
+        maze = Maze(width=0.34, unit=(1, 3, 3), seed='spam')
+        assert ()
+
+
 class MazeTestCase(SourceTestCase):
     def test_maze_fill(self):
         """When given the size of an array, return an array of that

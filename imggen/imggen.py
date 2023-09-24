@@ -6,9 +6,10 @@ The core module for the imggen package.
 """
 from abc import ABC, abstractmethod
 from inspect import signature
-from typing import Any
+from typing import Any, Sequence
 
-from numpy import ndarray
+import numpy as np
+from numpy.typing import NDArray
 
 
 # Common constants.
@@ -51,8 +52,10 @@ class Serializable(ABC):
 
 class Source(Serializable):
     @abstractmethod
-    def fill(self, size: tuple[int, ...],
-             loc: tuple[int, ...] = (0, 0, 0)) -> ndarray:
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> NDArray[np.float_]:
         """Fill a volume with image data.
 
         :param size: The size of the volume of image data to generate.

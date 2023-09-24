@@ -8,6 +8,7 @@ from operator import itemgetter
 from typing import Any, List, Sequence, Tuple, Union
 
 import numpy as np
+from numpy.typing import NDArray
 
 from imggen import unitnoise as un
 from imggen.imggen import X, Y, Z
@@ -70,14 +71,16 @@ class Maze(un.UnitNoise):
     *   middle | m
     *   right | r
     """
-    def __init__(self, unit: Sequence[int],
-                 width: float = .2,
-                 inset: Sequence[int] = (0, 1, 1),
-                 origin: Union[str, Sequence[int]] = 'tl',
-                 min: int = 0x00,
-                 max: int = 0xff,
-                 repeats: int = 1,
-                 seed: un.Seed = None) -> None:
+    def __init__(
+        self, unit: Sequence[int],
+        width: float = .2,
+        inset: Sequence[int] = (0, 1, 1),
+        origin: Union[str, Sequence[int]] = 'tl',
+        min: int = 0x00,
+        max: int = 0xff,
+        repeats: int = 1,
+        seed: un.Seed = None
+    ) -> None:
         """Initialize an instance of Maze."""
         super().__init__(unit, min, max, repeats, seed)
         self.width = width
@@ -85,8 +88,10 @@ class Maze(un.UnitNoise):
         self.origin = origin
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> NDArray[np.float_]:
         """Fill a space with image data."""
         values, unit_dim = self._build_grid(size, loc)
         path = self._build_path(values, unit_dim)

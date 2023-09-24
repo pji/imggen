@@ -7,6 +7,7 @@ Image data sources that create unit noise.
 from typing import NamedTuple, Sequence
 
 import numpy as np
+from numpy.typing import NDArray
 
 from imggen.noise import Noise, Seed
 from imggen.imggen import Source, X, Y, Z
@@ -63,8 +64,10 @@ class UnitNoise(Noise):
         self._hashes = [tmp.format(n) for n in range(2 ** self._axes)]
 
     # Public methods.
-    def fill(self, size: tuple[int, ...],
-             location: tuple[int, ...] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Sequence[int],
+        location: Sequence[int] = (0, 0, 0)
+    ) -> NDArray[np.float_]:
         """Return a space filled with noise."""
         shape = self._calc_unit_grid_shape(size)
         whole, parts = self._map_unit_grid(size, location)
@@ -73,9 +76,11 @@ class UnitNoise(Noise):
         return a / (self.max - self.min)
 
     # Private methods.
-    def _build_grids(self, whole: np.ndarray,
-                     size: tuple[int, ...],
-                     shape: Sequence[int]) -> dict[str, np.ndarray]:
+    def _build_grids(
+        self, whole: NDArray[np.int_],
+        size: Sequence[int],
+        shape: Sequence[int]
+    ) -> dict[str, NDArray[np.int64]]:
         """Get the color for the eight vertices that surround each of
         the pixels.
         """
@@ -117,9 +122,10 @@ class UnitNoise(Noise):
         self._rng.shuffle(table)
         return table
 
-    def _map_unit_grid(self, size: tuple[int, ...],
-                       location: tuple[int, ...]
-                       ) -> tuple[np.ndarray, np.ndarray]:
+    def _map_unit_grid(
+        self, size: Sequence[int],
+        location: Sequence[int]
+    ) -> tuple[NDArray[np.int_], NDArray[np.float_]]:
         """Map the image data to the unit grid."""
         # Map out the space.
         a = np.indices(size, float)
@@ -175,11 +181,12 @@ class CosineCurtains(Curtains):
     flow more like curtains.
     """
     # Private methods.
-    def _map_unit_grid(self, size: tuple[int, ...],
-                       loc: tuple[int, ...]
-                       ) -> tuple[np.ndarray, np.ndarray]:
+    def _map_unit_grid(
+        self, size: Sequence[int],
+        location: Sequence[int]
+    ) -> tuple[NDArray[np.int_], NDArray[np.float_]]:
         """Map the image data to the unit grid."""
-        whole, parts = super()._map_unit_grid(size, loc)
+        whole, parts = super()._map_unit_grid(size, location)
         parts = (1 - np.cos(parts * np.pi)) / 2
         return whole, parts
 
@@ -221,8 +228,10 @@ def octave_noise_factory(source: type[UnitNoise],
             self.repeats = repeats
             self.seed = seed
 
-        def fill(self, size: tuple[int, ...],
-                 loc: tuple[int, ...] = (0, 0, 0)) -> np.ndarray:
+        def fill(
+            self, size: Sequence[int],
+            loc: Sequence[int] = (0, 0, 0)
+        ) -> np.ndarray:
             a = np.zeros(tuple(size), dtype=float)
             max_value = 0.0
             for i in range(self.octaves):

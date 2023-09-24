@@ -4,9 +4,10 @@ worley
 
 Image data sources that create Worley noise.
 """
-from typing import Sequence
+from typing import Optional, Sequence
 
 import numpy as np
+from numpy.typing import NDArray
 
 from imggen.noise import Seed, Noise
 
@@ -44,27 +45,31 @@ class Worley(Noise):
     :return: :class:Worley object.
     :rtype: imggen.worley.Worley
     """
-    def __init__(self, points: int,
-                 volume: Sequence[int] = None,
-                 origin: Sequence[int] = (0, 0, 0),
-                 seed: Seed = None) -> None:
+    def __init__(
+        self, points: int,
+        volume: Optional[Sequence[int]] = None,
+        origin: Sequence[int] = (0, 0, 0),
+        seed: Seed = None
+    ) -> None:
         self.points = points
         self.volume = volume
         self.origin = origin
         super().__init__(seed)
 
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> NDArray[np.float_]:
         """Return a space filled with noise."""
         a = np.zeros(size, dtype=float)
         volume_size = self.volume
         if volume_size is None:
             volume_size = size
-        volume = np.array(volume_size)
+        volume = np.array(volume_size, dtype=float)
 
         # Place the seeds in the overall volume of noise.
-        seeds = self._rng.random((self.points, 3))
-        seeds = np.round(seeds * (volume - 1))
+        seeds = self._rng.random((self.points, 3), dtype=float)
+        seeds = np.around(seeds * (volume - 1)).astype(float)
         seeds += np.array(self.origin)
 
         # Map the distances to the points.
