@@ -8,7 +8,7 @@ import numpy as np
 import pytest as pt
 
 from imggen import unitnoise as un
-from tests.common import SourceTestCase, mkhex
+from tests.common import mkhex
 
 
 # Tests for base UnitNoise.

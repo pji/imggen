@@ -5,7 +5,7 @@ maze
 Image data sources that create maze-like paths.
 """
 from operator import itemgetter
-from typing import Any, List, Sequence, Tuple, Union
+from typing import Any, Optional, Sequence, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -15,7 +15,12 @@ from imggen.imggen import X, Y, Z
 
 
 # Types.
-MazePath = List[Tuple[Any, Tuple[Any, ...]]]
+Image = NDArray[np.float_]
+Loc = Sequence[int]
+Size = Sequence[int]
+Spot = tuple[int, ...]
+Step = tuple[Spot, Spot]
+MazePath = list[Step]
 
 
 # Public classes.
@@ -89,16 +94,20 @@ class Maze(un.UnitNoise):
 
     # Public methods.
     def fill(
-        self, size: Sequence[int],
+        self, size: Size,
         loc: Sequence[int] = (0, 0, 0)
-    ) -> NDArray[np.float_]:
+    ) -> Image:
         """Fill a space with image data."""
         values, unit_dim = self._build_grid(size, loc)
         path = self._build_path(values, unit_dim)
+        # import pprint
+        # pprint.pprint(path)
         return self._draw_path(path, size)
 
     # Private methods.
-    def _build_grid(self, size, loc):
+    def _build_grid(
+        self, size: Size, loc: Loc
+    ) -> tuple[NDArray[np.int_], Sequence[int]]:
         """Create a grid of values. This uses the same technique
         Perlin noise uses to add randomness to the noise. A table of
         values was shuffled, and we use the coordinate of each vertex
@@ -106,7 +115,7 @@ class Maze(un.UnitNoise):
         value for that vertex. This grid will be used to determine the
         route the path follows through the space.
         """
-        unit_dim = [int(s / u) for s, u in zip(size, self.unit)]
+        unit_dim = tuple(int(s / u) for s, u in zip(size, self.unit))
         unit_dim = tuple(np.array(unit_dim) + np.array((0, 1, 1)))
         unit_dim = tuple(np.array(unit_dim) - np.array(self.inset) * 2)
         unit_indices = np.indices(unit_dim)
@@ -118,11 +127,12 @@ class Maze(un.UnitNoise):
         values = np.take(self._table, values % len(self._table))
         values += unit_indices[Z]
         values = np.take(self._table, values & len(self._table))
-        unit_dim = np.array(unit_dim)
         return values, unit_dim
 
-    def _build_path(self, values: np.ndarray,
-                    unit_dim: Sequence[int]) -> MazePath:
+    def _build_path(
+        self, values: NDArray[np.int_],
+        unit_dim: Sequence[int]
+    ) -> MazePath:
         """Create the steps in the path."""
         # The cursor will be used to determine our current position
         # on the grid as we create the path.
@@ -157,16 +167,18 @@ class Maze(un.UnitNoise):
             # can take. Some of them won't be viable because they are
             # outside the bounds of the image or have already been
             # hit.
-            cursor = np.array(cursor)
-            options = [vertex + cursor for vertex in vertices]
-            viable = [(o, values[tuple(o)]) for o in options
-                      if self._is_viable_option(o, unit_dim, been_there)]
+            acursor = np.array(cursor)
+            options = [vertex + acursor for vertex in vertices]
+            viable = [
+                (o, values[tuple(o)]) for o in options
+                if self._is_viable_option(o, unit_dim, been_there)
+            ]
 
             # If there is a viable next step, take that step.
             if viable:
-                cursor = tuple(cursor)
+                cursor = tuple(acursor)
                 viable = sorted(viable, key=itemgetter(1))
-                newloc = tuple(viable[0][0])
+                newloc: Spot = tuple(viable[0][0])
                 path.append((cursor, newloc))
                 been_there[newloc] = True
                 cursor = newloc
@@ -185,44 +197,52 @@ class Maze(un.UnitNoise):
 
         return path
 
-    def _calc_origin(self, origin, unit_dim):
+    def _calc_origin(
+        self, origin: Union[str, Sequence[int]],
+        unit_dim: Sequence[int]
+    ) -> Spot:
         "Determine the starting location of the cursor."
         # If origin isn't a string, no further calculation is needed.
         if not isinstance(origin, str):
-            return origin
+            return tuple(origin)
 
         # Coordinates serialized as strings should be comma delimited.
         if ',' in origin:
-            return c.text_to_int(origin)
+            parts = origin.split(',')
+            return tuple(int(part.strip()) for part in parts)
 
         # If it's neither of the above, it's a descriptive string.
         result = [0, 0, 0]
-        if '-' in origin:
-            origin = origin.split('-')
+        items: Union[str, Sequence[str]] = origin
+        if isinstance(items, str) and '-' in items:
+            items = items.split('-')
 
         # Allow middle to be a shortcut for middle-middle.
-        if origin == 'middle' or origin == 'm':
-            origin = 'mm'
+        if items == 'middle' or items == 'm':
+            items = 'mm'
 
         # Set the Y axis coordinate.
-        if origin[0] in ('top', 't'):
+        if items[0] in ('top', 't'):
             result[Y] = 0
-        if origin[0] in ('middle', 'm'):
+        if items[0] in ('middle', 'm'):
             result[Y] = unit_dim[Y] // 2
-        if origin[0] in ('bottom', 'b'):
+        if items[0] in ('bottom', 'b'):
             result[Y] = unit_dim[Y] - 1
 
         # Set the X axis coordinate.
-        if origin[1] in ('left', 'l'):
+        if items[1] in ('left', 'l'):
             result[X] = 0
-        if origin[1] in ('middle', 'm'):
+        if items[1] in ('middle', 'm'):
             result[X] = unit_dim[X] // 2
-        if origin[1] in ('right', 'r'):
+        if items[1] in ('right', 'r'):
             result[X] = unit_dim[X] - 1
 
-        return result
+        return tuple(result)
 
-    def _draw_path(self, path, size):
+    def _draw_path(
+        self, path: MazePath,
+        size: Size
+    ) -> Image:
         """Turn the unit grid array into an array of image data."""
         a = np.zeros(size, dtype=float)
         width = int(self.unit[-1] * self.width)
@@ -234,7 +254,7 @@ class Maze(un.UnitNoise):
             a[:, slice_y, slice_x] = 1.0
         return a
 
-    def _get_slice(self, start, end, width):
+    def _get_slice(self, start: int, end: int, width: int) -> slice:
         """Get a slice of the array of image data of the given width."""
         if start > end:
             start, end = end, start
@@ -242,11 +262,17 @@ class Maze(un.UnitNoise):
         end += width
         return slice(start, end)
 
-    def _is_viable_option(self, option, unit_dim, been_there):
+    def _is_viable_option(
+        self, option: NDArray[np.int_],
+        unit_dim: Sequence[int],
+        been_there: NDArray[np.bool_]
+    ) -> bool:
         loc = tuple(option)
-        if (np.min(option) >= 0
-                and all(unit_dim > option)
-                and not been_there[loc]):
+        if (
+            np.min(option) >= 0
+            and all(unit_dim > option)
+            and not been_there[loc]
+        ):
             return True
         return False
 
@@ -298,25 +324,29 @@ class AnimatedMaze(Maze):
     :return: :class:AnimatedMaze object.
     :rtype: imggen.maze.AnimatedMaze
     """
-    def __init__(self, unit: Sequence[int],
-                 delay: int = 0,
-                 linger: int = 0,
-                 trace: bool = True,
-                 width: float = .2,
-                 inset: Sequence[int] = (0, 1, 1),
-                 origin: Union[str, Sequence[int]] = 'tl',
-                 min: int = 0x00,
-                 max: int = 0xff,
-                 repeats: int = 1,
-                 seed: un.Seed = None) -> None:
+    def __init__(
+        self, unit: Sequence[int],
+        delay: int = 0,
+        linger: int = 0,
+        trace: bool = True,
+        width: float = .2,
+        inset: Sequence[int] = (0, 1, 1),
+        origin: Union[str, Sequence[int]] = 'tl',
+        min: int = 0x00,
+        max: int = 0xff,
+        repeats: int = 1,
+        seed: un.Seed = None
+    ) -> None:
         self.delay = delay
         self.linger = linger
         self.trace = trace
         super().__init__(unit, width, inset, origin, min, max, repeats, seed)
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> Image:
         a = super().fill(size, loc)
         for _ in range(self.delay):
             a = np.insert(a, 0, np.zeros_like(a[0]), 0)
@@ -325,7 +355,7 @@ class AnimatedMaze(Maze):
         return a
 
     # Private methods.
-    def _draw_path(self, path, size):
+    def _draw_path(self, path: MazePath, size: Size) -> Image:
         def _take_step(branch, frame):
             try:
                 step = branch[index]
@@ -341,12 +371,12 @@ class AnimatedMaze(Maze):
             return frame
 
         a = np.zeros(size, dtype=float)
-        path = self._find_branches(path)
+        branches = self._find_branches(path)
         width = int(self.unit[-1] * self.width)
         index = 0
         frame = a[0].copy()
         while index < size[Z] - 1:
-            for branch in path:
+            for branch in branches:
                 frame = _take_step(branch, frame)
             a[index + 1] = frame.copy()
             index += 1
@@ -354,7 +384,7 @@ class AnimatedMaze(Maze):
                 frame.fill(0)
         return a
 
-    def _find_branches(self, path):
+    def _find_branches(self, path: MazePath) -> list[list[Optional[Step]]]:
         """Find the spots where the path starts from the same location
         and split those out into branches, so they can be animated to
         be walked at the same time.
@@ -362,13 +392,15 @@ class AnimatedMaze(Maze):
         branches = []
         index = 1
         starts = [step[0] for step in path]
-        branch = [path[0],]
+        branch: list[Optional[Step]] = [path[0],]
+
+        # Trace all the branches in the maze.
         while index < len(path):
             start = path[index][0]
             if start in starts[:index]:
                 branches.append(branch)
                 for item in branches:
-                    bstarts = []
+                    bstarts: list[Optional[Spot]] = []
                     for step in item:
                         if step:
                             bstarts.append(step[0])
@@ -383,6 +415,8 @@ class AnimatedMaze(Maze):
                     raise ValueError(msg)
             branch.append(path[index])
             index += 1
+
+        # Make sure the last branch we were working on gets counted.
         branches.append(branch)
 
         # Make sure all the branches are the same length.
@@ -447,27 +481,44 @@ class SolvedMaze(Maze):
     *   middle | m
     *   right | r
     """
-    def __init__(self, unit: Sequence[int],
-                 start: Union[str, Sequence[int]] = 'tl',
-                 end: Union[str, Sequence[int]] = 'br',
-                 algorithm: str = 'branches',
-                 width: float = .2,
-                 inset: Sequence[int] = (0, 1, 1),
-                 origin: Union[str, Sequence[int]] = 'tl',
-                 min: int = 0x00,
-                 max: int = 0xff,
-                 repeats: int = 1,
-                 seed: un.Seed = None) -> None:
+    def __init__(
+        self, unit: Sequence[int],
+        start: Union[str, Sequence[int]] = 'tl',
+        end: Union[str, Sequence[int]] = 'br',
+        algorithm: str = 'branches',
+        width: float = .2,
+        inset: Sequence[int] = (0, 1, 1),
+        origin: Union[str, Sequence[int]] = 'tl',
+        min: int = 0x00,
+        max: int = 0xff,
+        repeats: int = 1,
+        seed: un.Seed = None
+    ) -> None:
         super().__init__(unit, width, inset, origin, min, max, repeats, seed)
         self.start = start
         self.end = end
+        self.algorithm = algorithm
         self._solve_path = self._solve_path_branches
         if algorithm == 'breadcrumb':
             self._solve_path = self._solve_path_breadcrumbs
 
+    # Properties.
+    @property
+    def algorithm(self) -> str:
+        return self._algorithm
+
+    @algorithm.setter
+    def algorithm(self, value: str) -> None:
+        self._solve_path = self._solve_path_branches
+        if value == 'breadcrumb':
+            self._solve_path = self._solve_path_breadcrumbs
+        self._algorithm: str = value
+
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> Image:
         """Fill a space with image data."""
         values, unit_dim = self._build_grid(size, loc)
         path = self._build_path(values, unit_dim)
@@ -475,7 +526,7 @@ class SolvedMaze(Maze):
         return self._draw_path(solution, size)
 
     # Private methods.
-    def _map_available_steps(self, path):
+    def _map_available_steps(self, path: MazePath) -> dict[Spot, list[Spot]]:
         """For every location in the path, determine what other
         locations the cursor can move to.
         """
@@ -498,12 +549,15 @@ class SolvedMaze(Maze):
         # The sets are returned as lists to allow for future sorting.
         return {k: list(steps[k]) for k in steps}
 
-    def _solve_path_breadcrumbs(self, path, unit_dim):
+    def _solve_path_breadcrumbs(
+        self, path: MazePath,
+        unit_dim: Sequence[int]
+    ) -> MazePath:
         """Determine the steps needed to move from one location in the
         path to another.
         """
         steps = self._map_available_steps(path)
-        solution = []
+        solution: MazePath = []
         been_there = np.zeros(unit_dim, int)
         start = tuple(self._calc_origin(self.start, unit_dim))
         end = tuple(self._calc_origin(self.end, unit_dim))
@@ -552,7 +606,10 @@ class SolvedMaze(Maze):
         # to the end of the path.
         return solution
 
-    def _solve_path_branches(self, path, unit_dim):
+    def _solve_path_branches(
+        self, path: MazePath,
+        unit_dim: Sequence[int]
+    ) -> MazePath:
         """Determine the steps needed to move from one location in the
         path to another.
         """
