@@ -43,11 +43,13 @@ class UnitNoise(Noise):
     # The number of dimensions the noise occurs in.
     _axes = 3
 
-    def __init__(self, unit: Sequence[int],
-                 min: int = 0x00,
-                 max: int = 0xff,
-                 repeats: int = 0,
-                 seed: Seed = None) -> None:
+    def __init__(
+        self, unit: Sequence[int],
+        min: int = 0x00,
+        max: int = 0xff,
+        repeats: int = 0,
+        seed: Seed = None
+    ) -> None:
         """Initialize an instance of UnitNoise."""
         # Initialize public values.
         self.unit = unit
@@ -68,7 +70,14 @@ class UnitNoise(Noise):
         self, size: Sequence[int],
         location: Sequence[int] = (0, 0, 0)
     ) -> NDArray[np.float_]:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         shape = self._calc_unit_grid_shape(size)
         whole, parts = self._map_unit_grid(size, location)
         grids = self._build_grids(whole, size, shape)
@@ -144,8 +153,10 @@ class UnitNoise(Noise):
         parts = a - whole
         return whole, parts
 
-    def _interp(self, grids: dict[str, np.ndarray],
-                parts: np.ndarray) -> np.ndarray:
+    def _interp(
+        self, grids: dict[str, NDArray[np.int64]],
+        parts: NDArray[np.float_]
+    ) -> NDArray[np.float_]:
         """Interpolate the values of each pixel of image data."""
         if len(grids) > 2:
             new_grids = {}
@@ -204,20 +215,24 @@ class OctaveNoiseDefaults(NamedTuple):
     seed: Seed = None
 
 
-def octave_noise_factory(source: type[UnitNoise],
-                         defaults: OctaveNoiseDefaults) -> type:
+def octave_noise_factory(
+    source: type[UnitNoise],
+    defaults: OctaveNoiseDefaults
+) -> type:
     class OctaveNoise(Source):
         source: type[UnitNoise]
 
-        def __init__(self, octaves: int = defaults.octaves,
-                     persistence: float = defaults.persistence,
-                     amplitude: float = defaults.amplitude,
-                     frequency: float = defaults.frequency,
-                     unit: Sequence[int] = defaults.unit,
-                     min: int = defaults.min,
-                     max: int = defaults.max,
-                     repeats: int = defaults.repeats,
-                     seed: Seed = defaults.seed) -> None:
+        def __init__(
+            self, octaves: int = defaults.octaves,
+            persistence: float = defaults.persistence,
+            amplitude: float = defaults.amplitude,
+            frequency: float = defaults.frequency,
+            unit: Sequence[int] = defaults.unit,
+            min: int = defaults.min,
+            max: int = defaults.max,
+            repeats: int = defaults.repeats,
+            seed: Seed = defaults.seed
+        ) -> None:
             self.octaves = octaves
             self.persistence = persistence
             self.amplitude = amplitude
@@ -231,7 +246,7 @@ def octave_noise_factory(source: type[UnitNoise],
         def fill(
             self, size: Sequence[int],
             loc: Sequence[int] = (0, 0, 0)
-        ) -> np.ndarray:
+        ) -> NDArray[np.float_]:
             a = np.zeros(tuple(size), dtype=float)
             max_value = 0.0
             for i in range(self.octaves):
@@ -260,16 +275,3 @@ defaults = OctaveNoiseDefaults()
 OctaveCosineCurtains = octave_noise_factory(CosineCurtains, defaults)
 OctaveCurtains = octave_noise_factory(Curtains, defaults)
 OctaveUnitNoise = octave_noise_factory(UnitNoise, defaults)
-
-
-if __name__ == '__main__':
-    import imggen.utility as u
-    kwargs = {
-        'unit': (4, 4, 4),
-        'seed': 'spam',
-    }
-    cls = OctaveCosineCurtains
-    size = (3, 8, 8)
-    obj = cls(**kwargs)
-    a = obj.fill(size)
-    u.print_array(a, 2)

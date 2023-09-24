@@ -60,6 +60,14 @@ class Noise(Source):
         self, size: Sequence[int],
         loc: Sequence[int] = (0, 0, 0)
     ) -> NDArray[np.float_]:
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         # Random number generation is linear and unidirectional. In
         # order to give the illusion of their being a space to move
         # in, we define the location of the first number generated

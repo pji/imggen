@@ -61,4 +61,6 @@ class Source(Serializable):
         :param size: The size of the volume of image data to generate.
         :param loc: (Optional.) How much to shift the starting point
             for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
         """

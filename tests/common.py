@@ -9,6 +9,11 @@ import unittest as ut
 import numpy as np
 
 
+# Utility functions.
+def mkhex(a):
+    return (a * 0xff).astype(np.uint8)
+
+
 # Base test cases.
 class ArrayTestCase(ut.TestCase):
     def assertArrayEqual(self, a, b):
