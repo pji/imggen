@@ -499,8 +499,3 @@ class TestOctaveNoiseFactory:
                 [0x80, 0xc3, 0x6c, 0x87, 0x41, 0x14, 0x91, 0x34],
             ],
         ], dtype=np.uint8)).all
-
-
-# TestCase base class to keep old tests from breaking.
-class UnitNoiseTestCase(SourceTestCase):
-    ...

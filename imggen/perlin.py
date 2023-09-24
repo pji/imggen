@@ -45,11 +45,13 @@ class Perlin(un.UnitNoise):
     :return: :class:Perlin object.
     :rtype: imggen.perlin.Perlin
     """
-    def __init__(self, unit: Sequence[int],
-                 min: int = 0x00,
-                 max: int = 0xff,
-                 repeats: int = 1,
-                 seed: un.Seed = None) -> None:
+    def __init__(
+        self, unit: Sequence[int],
+        min: int = 0x00,
+        max: int = 0xff,
+        repeats: int = 1,
+        seed: un.Seed = None
+    ) -> None:
         """Initialize an instance of UnitNoise."""
         super().__init__(unit, min, max, repeats, seed)
 
@@ -69,9 +71,11 @@ class Perlin(un.UnitNoise):
         return (a + 1) / 2
 
     # Private methods.
-    def _build_grids(self, whole: np.ndarray,
-                     size: Sequence[float],
-                     shape: Sequence[int]) -> dict[str, np.ndarray]:
+    def _build_grids(
+        self, whole: np.ndarray,
+        size: Sequence[float],
+        shape: Sequence[int]
+    ) -> dict[str, np.ndarray]:
         """Get the color for the eight vertices that surround each of
         the pixels.
         """

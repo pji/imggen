@@ -44,5 +44,5 @@ test:
 
 .PHONY: testv
 testv:
-	python -m pipenv install --dev -e .
+	# python -m pipenv install --dev -e .
 	python -m pytest -vv  --capture=fd
