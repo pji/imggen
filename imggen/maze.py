@@ -94,7 +94,14 @@ class Maze(un.UnitNoise):
         self, size: Size,
         loc: Sequence[int] = (0, 0, 0)
     ) -> ImgAry:
-        """Fill a space with image data."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         values, unit_dim = self._build_grid(size, loc)
         path = self._build_path(values, unit_dim)
         # import pprint
@@ -344,6 +351,14 @@ class AnimatedMaze(Maze):
         self, size: Size,
         loc: Sequence[int] = (0, 0, 0)
     ) -> ImgAry:
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         a = super().fill(size, loc)
         for _ in range(self.delay):
             a = np.insert(a, 0, np.zeros_like(a[0]), 0)
@@ -516,7 +531,14 @@ class SolvedMaze(Maze):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
-        """Fill a space with image data."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         values, unit_dim = self._build_grid(size, loc)
         path = self._build_path(values, unit_dim)
         solution = self._solve_path(path, unit_dim)

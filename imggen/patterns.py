@@ -36,7 +36,14 @@ class Box(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         a = np.zeros(size)
         start = [n + o for n, o in zip(loc, self.origin)]
         end = [s + d for s, d in zip(start, self.dimensions)]
@@ -93,7 +100,14 @@ class Gradient(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         # Map out the locations of the stops within the gradient.
         if self.direction == 'h':
             a_size = size[X]
@@ -168,7 +182,14 @@ class Lines(Source):
         self, size: Sequence[int],
         loc: Sequence[int] = (0, 0, 0)
     ) -> ImgAry:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         values = np.indices(size, dtype=float)
         for axis in X, Y, Z:
             values[axis] += loc[axis]
@@ -206,6 +227,14 @@ class Rays(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         # Determine the center of the effect.
         center = [(n - 1) / 2 + o for n, o in zip(size, loc)]
 
@@ -275,7 +304,14 @@ class Rings(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         # Map out the volume of space that will be created.
         a = np.zeros(size)
         c = np.indices(size)
@@ -318,6 +354,14 @@ class Solid(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         a = np.zeros(size, dtype=float)
         a.fill(self.color)
         return a
@@ -346,7 +390,14 @@ class Spheres(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         # Map out the volume of space that will be created.
         a = np.indices(size, dtype=float)
         for axis in X, Y, Z:
@@ -412,7 +463,14 @@ class Spot(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         # Map out the volume of space that will be created.
         a = np.indices(size, dtype=float)
         for axis in X, Y, Z:
@@ -492,7 +550,14 @@ class Text(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         a = np.zeros(size, float)
         origin = (
             self.origin[0] + loc[Y],
@@ -550,7 +615,14 @@ class Waves(Source):
         self, size: Size,
         loc: Loc = (0, 0, 0)
     ) -> ImgAry:
-        """Return a space filled with noise."""
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         # Map out the volume of space that will be created.
         a = np.zeros(size, dtype=float)
         c = np.indices(size, dtype=float)

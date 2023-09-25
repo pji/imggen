@@ -10,7 +10,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from imggen import unitnoise as un
-from imggen.imggen import X, Y, Z
+from imggen.imggen import ImgAry, Loc, Size, X, Y, Z
 
 
 # Public class.
@@ -57,10 +57,17 @@ class Perlin(un.UnitNoise):
 
     # Public classes.
     def fill(
-        self, size: Sequence[int],
-        loc: Sequence[int] = (0, 0, 0)
-    ) -> NDArray[np.float_]:
-        """Return a space filled with Perlin noise."""
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         shape = self._calc_unit_grid_shape(size)
         whole, parts = self._map_unit_grid(size, loc)
         fades = 6 * parts ** 5 - 15 * parts ** 4 + 10 * parts ** 3
@@ -133,19 +140,3 @@ class Perlin(un.UnitNoise):
 # Octave unit noise classes.
 defaults = un.OctaveNoiseDefaults(6, -4, 24, 4)
 OctavePerlin = un.octave_noise_factory(Perlin, defaults)
-
-
-if __name__ == '__main__':
-    import imggen.utility as u
-    kwargs = {
-        'unit': (1024, 1024, 1024),
-        'min': 0x00,
-        'max': 0xff,
-        'repeats': 1,
-        'seed': 'eggs',
-    }
-    cls = OctavePerlin
-    size = (3, 12, 8)
-    obj = cls(**kwargs)
-    a = obj.fill(size)
-    u.print_array(a, 2)

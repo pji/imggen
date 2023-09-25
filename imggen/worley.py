@@ -10,6 +10,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from imggen.noise import Seed, Noise
+from imggen.imggen import ImgAry, Loc, Size
 
 
 # Public classes.
@@ -47,8 +48,8 @@ class Worley(Noise):
     """
     def __init__(
         self, points: int,
-        volume: Optional[Sequence[int]] = None,
-        origin: Sequence[int] = (0, 0, 0),
+        volume: Optional[Size] = None,
+        origin: Loc = (0, 0, 0),
         seed: Seed = None
     ) -> None:
         self.points = points
@@ -57,10 +58,17 @@ class Worley(Noise):
         super().__init__(seed)
 
     def fill(
-        self, size: Sequence[int],
-        loc: Sequence[int] = (0, 0, 0)
-    ) -> NDArray[np.float_]:
-        """Return a space filled with noise."""
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
         a = np.zeros(size, dtype=float)
         volume_size = self.volume
         if volume_size is None:
@@ -87,6 +95,6 @@ class Worley(Noise):
         return a
 
     # Private methods.
-    def _hypot(self, point: Sequence[int], indices: np.ndarray) -> np.ndarray:
+    def _hypot(self, point: Loc, indices: NDArray[np.int_]) -> ImgAry:
         axis_dist = [p - i for p, i in zip(point, indices)]
         return np.sqrt(sum(d ** 2 for d in axis_dist))

@@ -10,7 +10,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from imggen.noise import Noise, Seed
-from imggen.imggen import Source, X, Y, Z
+from imggen.imggen import ImgAry, Loc, Size, Source, X, Y, Z
 from imggen.utility import lerp
 
 
@@ -67,9 +67,9 @@ class UnitNoise(Noise):
 
     # Public methods.
     def fill(
-        self, size: Sequence[int],
-        location: Sequence[int] = (0, 0, 0)
-    ) -> NDArray[np.float_]:
+        self, size: Size,
+        location: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Fill a volume with image data.
 
         :param size: The size of the volume of image data to generate.
