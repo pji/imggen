@@ -7,7 +7,7 @@ Unit tests for the imggen.patterns module.
 import numpy as np
 
 from imggen import patterns as p
-from tests.common import ArrayTestCase, SourceTestCase, mkhex
+from tests.common import mkhex
 
 
 # Test cases.

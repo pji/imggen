@@ -4,11 +4,10 @@ patterns
 
 mage data sources for the imggen module that create non-random patterns.
 """
-from typing import Optional, Sequence
+from typing import Literal, Optional, Sequence
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont                 # type:ignore
-from numpy.typing import NDArray
+from PIL import Image, ImageDraw, ImageFont
 
 from imggen.imggen import ImgAry, Loc, Size, Source, X, Y, Z
 
@@ -437,20 +436,20 @@ class Text(Source):
     def __init__(
         self, text: str,
         font: str = 'Verdana',
-        size: float = 10,
+        size: int = 10,
         face: int = 0,
         encoding: str = 'unic',
         layout_engine: str = '',
-        origin: tuple[int, int] = (0, 0),
+        origin: tuple[float, float] = (0, 0),
         start: int = 0,
         duration: Optional[int] = None,
         fill_color: float = 1,
         bg_color: float = 0,
         spacing: float = .2,
         spacing_mode: str = 'proportional',
-        align: str = 'left',
-        stroke_width: float = 0,
-        stroke_fill: float = 0
+        align: Literal['left', 'center', 'right'] = 'left',
+        stroke_width: int = 0,
+        stroke_fill: int = 0
     ) -> None:
         self.text = text
         self.font = font
@@ -461,9 +460,9 @@ class Text(Source):
         if not layout_engine:
             self.layout_engine = None
         elif layout_engine == 'basic':
-            self.layout_engine = ImageFont.LAYOUT_BASIC
+            self.layout_engine = ImageFont.Layout.BASIC
         elif layout_engine == 'raqm':
-            self.layout_engine = ImageFont.LAYOUT_RAQM
+            self.layout_engine = ImageFont.Layout.RAQM
         else:
             msg = f'{layout_engine} is not a valid value for layout_engine.'
             raise ValueError(msg)
@@ -483,8 +482,10 @@ class Text(Source):
         self.stroke_width = stroke_width
         self.stroke_fill = stroke_fill
 
-        self._font = ImageFont.truetype(self.font, self.size, self.face,
-                                        self.encoding, self.layout_engine)
+        self._font = ImageFont.truetype(
+            self.font, self.size, self.face,
+            self.encoding, self.layout_engine
+        )
 
     # Public methods.
     def fill(
@@ -493,7 +494,10 @@ class Text(Source):
     ) -> ImgAry:
         """Return a space filled with noise."""
         a = np.zeros(size, float)
-        origin = [o + l for o, l in zip(self.origin, loc[Y:])]
+        origin = (
+            self.origin[0] + loc[Y],
+            self.origin[1] + loc[X],
+        )
         start = self.start - loc[Z]
         if self.duration is None:
             end = size[Z]
