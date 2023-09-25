@@ -2,7 +2,7 @@
 maze
 ~~~~~~
 
-Image data sources that create maze-like paths.
+ImgAry data sources that create maze-like paths.
 """
 from operator import itemgetter
 from typing import Any, Optional, Sequence, Union
@@ -11,13 +11,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 from imggen import unitnoise as un
-from imggen.imggen import X, Y, Z
+from imggen.imggen import ImgAry, Loc, Size, X, Y, Z
 
 
 # Types.
-Image = NDArray[np.float_]
-Loc = Sequence[int]
-Size = Sequence[int]
 Spot = tuple[int, ...]
 Step = tuple[Spot, Spot]
 MazePath = list[Step]
@@ -96,7 +93,7 @@ class Maze(un.UnitNoise):
     def fill(
         self, size: Size,
         loc: Sequence[int] = (0, 0, 0)
-    ) -> Image:
+    ) -> ImgAry:
         """Fill a space with image data."""
         values, unit_dim = self._build_grid(size, loc)
         path = self._build_path(values, unit_dim)
@@ -242,7 +239,7 @@ class Maze(un.UnitNoise):
     def _draw_path(
         self, path: MazePath,
         size: Size
-    ) -> Image:
+    ) -> ImgAry:
         """Turn the unit grid array into an array of image data."""
         a = np.zeros(size, dtype=float)
         width = int(self.unit[-1] * self.width)
@@ -346,7 +343,7 @@ class AnimatedMaze(Maze):
     def fill(
         self, size: Size,
         loc: Sequence[int] = (0, 0, 0)
-    ) -> Image:
+    ) -> ImgAry:
         a = super().fill(size, loc)
         for _ in range(self.delay):
             a = np.insert(a, 0, np.zeros_like(a[0]), 0)
@@ -355,7 +352,7 @@ class AnimatedMaze(Maze):
         return a
 
     # Private methods.
-    def _draw_path(self, path: MazePath, size: Size) -> Image:
+    def _draw_path(self, path: MazePath, size: Size) -> ImgAry:
         def _take_step(branch, frame):
             try:
                 step = branch[index]
@@ -518,7 +515,7 @@ class SolvedMaze(Maze):
     def fill(
         self, size: Size,
         loc: Loc = (0, 0, 0)
-    ) -> Image:
+    ) -> ImgAry:
         """Fill a space with image data."""
         values, unit_dim = self._build_grid(size, loc)
         path = self._build_path(values, unit_dim)

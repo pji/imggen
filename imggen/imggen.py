@@ -16,6 +16,12 @@ from numpy.typing import NDArray
 X, Y, Z = 2, 1, 0
 
 
+# Common types.
+ImgAry = NDArray[np.float_]
+Loc = Sequence[int]
+Size = Sequence[int]
+
+
 # Base classes.
 class Serializable(ABC):
     def __eq__(self, other):

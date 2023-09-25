@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont                 # type:ignore
 from numpy.typing import NDArray
 
-from imggen.imggen import Source, X, Y, Z
+from imggen.imggen import ImgAry, Loc, Size, Source, X, Y, Z
 
 
 class Box(Source):
@@ -23,16 +23,20 @@ class Box(Source):
     :return: A :class:Box object.
     :rtype: imggen.patterns.Box
     """
-    def __init__(self, origin: Sequence[int],
-                 dimensions: Sequence[int],
-                 color: float = 1.0) -> None:
+    def __init__(
+        self, origin: Loc,
+        dimensions: Sequence[int],
+        color: float = 1.0
+    ) -> None:
         self.origin = origin
         self.dimensions = dimensions
         self.color = color
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Return a space filled with noise."""
         a = np.zeros(size)
         start = [n + o for n, o in zip(loc, self.origin)]
@@ -55,8 +59,10 @@ class Gradient(Source):
     :return: :class:Gradient object.
     :rtype: imggen.patterns.Gradient
     """
-    def __init__(self, direction: str = 'h',
-                 stops: Sequence[float] = (0, 0, 1, 1)) -> None:
+    def __init__(
+        self, direction: str = 'h',
+        stops: Sequence[float] = (0, 0, 1, 1)
+    ) -> None:
         self.direction = direction
 
         # Parse the stops for the gradient.
@@ -84,8 +90,10 @@ class Gradient(Source):
             self.stops.append([1, self.stops[-1][1]])
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Return a space filled with noise."""
         # Map out the locations of the stops within the gradient.
         if self.direction == 'h':
@@ -160,7 +168,7 @@ class Lines(Source):
     def fill(
         self, size: Sequence[int],
         loc: Sequence[int] = (0, 0, 0)
-    ) -> NDArray[np.float_]:
+    ) -> ImgAry:
         """Return a space filled with noise."""
         values = np.indices(size, dtype=float)
         for axis in X, Y, Z:
@@ -187,14 +195,18 @@ class Rays(Source):
     :return: :class:Rays object.
     :rtype: imggen.patterns.Rays
     """
-    def __init__(self, count: int,
-                 offset: float = 0) -> None:
+    def __init__(
+        self, count: int,
+        offset: float = 0
+    ) -> None:
         self.count = int(count)
         self.offset = float(offset)
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         # Determine the center of the effect.
         center = [(n - 1) / 2 + o for n, o in zip(size, loc)]
 
@@ -247,10 +259,12 @@ class Rings(Source):
     :return: :class:Rings object.
     :rtype: imggen.patterns.Rings
     """
-    def __init__(self, radius: float,
-                 width: float,
-                 gap: float = 0,
-                 count: int = 1) -> None:
+    def __init__(
+        self, radius: float,
+        width: float,
+        gap: float = 0,
+        count: int = 1
+    ) -> None:
         """Initialize an instance of Ring."""
         self.radius = float(radius)
         self.width = float(width)
@@ -258,8 +272,10 @@ class Rings(Source):
         self.count = int(count)
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Return a space filled with noise."""
         # Map out the volume of space that will be created.
         a = np.zeros(size)
@@ -299,8 +315,10 @@ class Solid(Source):
         self.color = float(color)
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         a = np.zeros(size, dtype=float)
         a.fill(self.color)
         return a
@@ -326,9 +344,9 @@ class Spheres(Source):
 
     # Public methods.
     def fill(
-        self, size: Sequence[int],
-        loc: Sequence[int] = (0, 0, 0)
-    ) -> NDArray[np.float_]:
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Return a space filled with noise."""
         # Map out the volume of space that will be created.
         a = np.indices(size, dtype=float)
@@ -391,11 +409,13 @@ class Spot(Source):
         self.radius = float(radius)
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Return a space filled with noise."""
         # Map out the volume of space that will be created.
-        a = np.indices(size)
+        a = np.indices(size, dtype=float)
         for axis in X, Y, Z:
             a[axis] += loc[axis]
 
@@ -468,9 +488,9 @@ class Text(Source):
 
     # Public methods.
     def fill(
-        self, size: Sequence[int],
-        loc: Sequence[int] = (0, 0, 0)
-    ) -> np.ndarray:
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Return a space filled with noise."""
         a = np.zeros(size, float)
         origin = [o + l for o, l in zip(self.origin, loc[Y:])]
@@ -513,15 +533,19 @@ class Waves(Source):
     :returns: :class:Waves object.
     :rtype: imggen.patterns.Waves
     """
-    def __init__(self, length: float,
-                 growth: str = 'l') -> None:
+    def __init__(
+        self, length: float,
+        growth: str = 'l'
+    ) -> None:
         """Initialize an instance of Waves."""
         self.length = float(length)
         self.growth = growth
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Return a space filled with noise."""
         # Map out the volume of space that will be created.
         a = np.zeros(size, dtype=float)

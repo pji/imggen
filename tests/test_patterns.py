@@ -7,18 +7,57 @@ Unit tests for the imggen.patterns module.
 import numpy as np
 
 from imggen import patterns as p
-from tests.common import ArrayTestCase, SourceTestCase
+from tests.common import ArrayTestCase, SourceTestCase, mkhex
 
 
 # Test cases.
-class BoxTestCase(SourceTestCase):
+class TestBox:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given only required parameters, :class:`Box` should
+        initialize the required attributes with the given values. It
+        should then initialize the optional attributes with default
+        values.
+        """
+        required = {
+            'origin': (4, 4, 4),
+            'dimensions': (4, 4),
+        }
+        optional = {
+            'color': 1.0,
+        }
+        obj = p.Box(**required)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Box` should
+        initialize the given attributes with the given values.
+        """
+        required = {
+            'origin': (4, 4, 4),
+            'dimensions': (4, 4),
+        }
+        optional = {
+            'color': 0.5,
+        }
+        obj = p.Box(**required, **optional)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    # Tests for fill.
     def test_fill(self):
-        """Given a size, Solid.fill should return a volume filled with
-        a box of the origin, dimensions, and color given when the
-        object was created.
+        """Given origin, dimensions, and a color, :meth:`Box.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
         """
-        # Expected values.
-        exp = np.array([
+        obj = p.Box((0, 1, 1), (1, 2, 3), 0x80 / 0xff)
+        result = obj.fill((2, 8, 8))
+        assert (mkhex(result) == np.array([
             [
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
                 [0x00, 0x80, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00],
@@ -39,93 +78,161 @@ class BoxTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ],
-        ], dtype=np.uint8)
-
-        # Set up test data and state.
-        kwargs = {
-            'origin': (0, 1, 1),
-            'dimensions': (1, 2, 3),
-            'color': 0x80 / 0xff,
-        }
-        pattern = p.Box
-
-        # Run test and determine result.
-        self.fill_test(exp, pattern, kwargs)
+        ], dtype=np.uint8)).any()
 
 
-class GradientTestCase(SourceTestCase):
-    def test_gradient_fill(self):
-        """Given the size of a space to fill with noise, return an
-        array of that size filled with noise.
+class TestGradient:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given no parameters, :class:`Gradient` should
+        initialize the required attributes with the given values. It
+        should then initialize the optional attributes with default
+        values.
         """
-        # Expected values.
-        exp = np.array([
-            [
-                [0x00, 0x00, 0x00, 0x00],
-                [0x7f, 0x7f, 0x7f, 0x7f],
-                [0xff, 0xff, 0xff, 0xff],
-                [0x7f, 0x7f, 0x7f, 0x7f],
-                [0x00, 0x00, 0x00, 0x00],
-            ],
-            [
-                [0x00, 0x00, 0x00, 0x00],
-                [0x7f, 0x7f, 0x7f, 0x7f],
-                [0xff, 0xff, 0xff, 0xff],
-                [0x7f, 0x7f, 0x7f, 0x7f],
-                [0x00, 0x00, 0x00, 0x00],
-            ],
-        ], dtype=np.uint8)
-
-        # Set up test data and state.
-        kwargs = {
-            'direction': 'v',
-            'stops': [0., 0., .5, 1., 1., 0.],
-        }
-        pattern = p.Gradient
-
-        # Run test and determine result.
-        self.fill_test(exp, pattern, kwargs)
-
-
-class LinesTestCase(SourceTestCase):
-    def test_lines_fill(self):
-        """Given the size of a space to fill with noise, return an
-        array of that size filled with noise.
-        """
-        # Expected values.
-        exp = np.array([
-            [
-                [0x00, 0x00, 0x00, 0x00],
-                [0x7f, 0x7f, 0x7f, 0x7f],
-                [0xff, 0xff, 0xff, 0xff],
-                [0x7f, 0x7f, 0x7f, 0x7f],
-            ],
-            [
-                [0x7f, 0x7f, 0x7f, 0x7f],
-                [0xff, 0xff, 0xff, 0xff],
-                [0x7f, 0x7f, 0x7f, 0x7f],
-                [0x00, 0x00, 0x00, 0x00],
-            ],
-        ], dtype=np.uint8)
-
-        # Set up test data and state.
-        kwargs = {
+        optional = {
             'direction': 'h',
-            'length': 5,
+            'stops': (0, 0, 1, 1),
         }
-        pattern = p.Lines
+        obj = p.Gradient()
+        optional['stops'] = [[0, 0], [1, 1]]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
 
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
-
-
-class RaysTestCase(SourceTestCase):
-    def test_rays_fill(self):
-        """Given a size and location, Ray.fill should return a
-        volume filled with rays emanating from a central point.
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Gradient` should
+        initialize the given attributes with the given values.
         """
-        # Expected value.
-        exp = np.array([
+        optional = {
+            'direction': 'v',
+            'stops': (0.2, 0.4, 0.6, 0.8),
+        }
+        obj = p.Gradient(**optional)
+        optional['stops'] = [[0, 0.4], [0.2, 0.4], [0.6, 0.8], [1, 0.8]]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    # Tests for fill.
+    def test_fill(self):
+        """Given origin, dimensions, and a color, :meth:`Gradient.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
+        """
+        obj = p.Gradient(direction='v', stops=[0, 0, .5, 1, 1, 0])
+        result = obj.fill((2, 5, 4))
+        assert (mkhex(result) == np.array([
+            [
+                [0x00, 0x00, 0x00, 0x00],
+                [0x7f, 0x7f, 0x7f, 0x7f],
+                [0xff, 0xff, 0xff, 0xff],
+                [0x7f, 0x7f, 0x7f, 0x7f],
+                [0x00, 0x00, 0x00, 0x00],
+            ],
+            [
+                [0x00, 0x00, 0x00, 0x00],
+                [0x7f, 0x7f, 0x7f, 0x7f],
+                [0xff, 0xff, 0xff, 0xff],
+                [0x7f, 0x7f, 0x7f, 0x7f],
+                [0x00, 0x00, 0x00, 0x00],
+            ],
+        ], dtype=np.uint8)).any()
+
+
+class TestLines:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given no parameters, :class:`Lines` should initialize
+        the required attributes with the given values. It should
+        then initialize the optional attributes with default values.
+        """
+        optional = {
+            'direction': 'h',
+            'length': 64,
+        }
+        obj = p.Lines()
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Lines` should
+        initialize the given attributes with the given values.
+        """
+        optional = {
+            'direction': 'h',
+            'length': 64,
+        }
+        obj = p.Lines(**optional)
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    # Tests for fill.
+    def test_fill(self):
+        """Given origin, dimensions, and a color, :meth:`Lines.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
+        """
+        obj = p.Lines(direction='h', length=5)
+        result = obj.fill((2, 4, 4))
+        assert (mkhex(result) == np.array([
+            [
+                [0x00, 0x00, 0x00, 0x00],
+                [0x7f, 0x7f, 0x7f, 0x7f],
+                [0xff, 0xff, 0xff, 0xff],
+                [0x7f, 0x7f, 0x7f, 0x7f],
+            ],
+            [
+                [0x7f, 0x7f, 0x7f, 0x7f],
+                [0xff, 0xff, 0xff, 0xff],
+                [0x7f, 0x7f, 0x7f, 0x7f],
+                [0x00, 0x00, 0x00, 0x00],
+            ],
+        ], dtype=np.uint8)).any()
+
+
+class TestRays:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given only required parameters, :class:`Rays` should
+        initialize the required attributes with the given values.
+        It should then initialize the optional attributes with
+        default values.
+        """
+        required = {
+            'count': 2,
+        }
+        optional = {
+            'offset': 0.0
+        }
+        obj = p.Rays(**required)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Rays` should
+        initialize the given attributes with the given values.
+        """
+        required = {
+            'count': 3,
+        }
+        optional = {
+            'offset': 0.5
+        }
+        obj = p.Rays(**required, **optional)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    # Tests for fill.
+    def test_fill(self):
+        """Given origin, dimensions, and a color, :meth:`Rays.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
+        """
+        obj = p.Rays(count=3, offset=np.pi / 2)
+        result = obj.fill((1, 8, 8))
+        assert (mkhex(result) == np.array([
             [
                 [0x89, 0x60, 0x2c, 0x13, 0x58, 0x98, 0xcd, 0xf5],
                 [0xb1, 0x89, 0x4d, 0x06, 0x66, 0xb9, 0xf5, 0xe0],
@@ -136,26 +243,58 @@ class RaysTestCase(SourceTestCase):
                 [0x1e, 0x09, 0x45, 0x98, 0xf8, 0xb1, 0x75, 0x4d],
                 [0x09, 0x31, 0x66, 0xa6, 0xeb, 0xd2, 0x9e, 0x75],
             ],
-        ], dtype=np.uint8)
-
-        # Set up test data and state.
-        kwargs = {
-            'count': 3,
-            'offset': np.pi / 2,
-        }
-        pattern = p.Rays
-
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
+        ], dtype=np.uint8)).any()
 
 
-class RingsTestCase(SourceTestCase):
-    def test_ring_fill(self):
-        """Given a size and location, Ring.fill should return a
-        volume filled with concentric rings.
+class TestRing:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given only required parameters, :class:`Rings` should
+        initialize the required attributes with the given values.
+        It should then initialize the optional attributes with
+        default values.
         """
-        # Expected value.
-        exp = np.array([
+        required = {
+            'radius': 2.0,
+            'width': 1.5,
+        }
+        optional = {
+            'gap': 0.0,
+            'count': 1,
+        }
+        obj = p.Rings(**required)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Rings` should
+        initialize the given attributes with the given values.
+        """
+        required = {
+            'radius': 2.0,
+            'width': 1.5,
+        }
+        optional = {
+            'gap': 0.5,
+            'count': 2,
+        }
+        obj = p.Rings(**required, **optional)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    # Tests for fill.
+    def test_fill(self):
+        """Given origin, dimensions, and a color, :meth:`Rings.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
+        """
+        obj = p.Rings(radius=2, width=1, gap=2, count=3)
+        result = obj.fill((1, 8, 8))
+        assert (mkhex(result) == np.array([
             [
                 [0x4f, 0x00, 0x0e, 0xc0, 0xff, 0xc0, 0x0e, 0x00],
                 [0x00, 0x83, 0x35, 0x00, 0x00, 0x00, 0x35, 0x83],
@@ -166,28 +305,33 @@ class RingsTestCase(SourceTestCase):
                 [0x0e, 0x35, 0x00, 0x86, 0xff, 0x86, 0x00, 0x35],
                 [0x00, 0x83, 0x35, 0x00, 0x00, 0x00, 0x35, 0x83],
             ],
-        ], dtype=np.uint8)
+        ], dtype=np.uint8)).any()
 
-        # Set up test data and state.
-        kwargs = {
-            'radius': 2,
-            'width': 1,
-            'gap': 2,
-            'count': 3,
+
+class TestSolid:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given only required parameters, :class:`Solid` should
+        initialize the required attributes with the given values.
+        It should then initialize the optional attributes with
+        default values.
+        """
+        required = {
+            'color': 0.25,
         }
-        pattern = p.Rings
+        obj = p.Solid(**required)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
 
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
-
-
-class SolidTestCase(SourceTestCase):
+    # Tests for fill.
     def test_fill(self):
-        """Given a size and location, Solid.fill should return a
-        volume filled with a single color.
+        """Given origin, dimensions, and a color, :meth:`Solid.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
         """
-        # Expected values.
-        exp = np.array([
+        obj = p.Solid(color=0x40 / 0xff)
+        result = obj.fill((2, 4, 4))
+        assert (mkhex(result) == np.array([
             [
                 [0x40, 0x40, 0x40, 0x40],
                 [0x40, 0x40, 0x40, 0x40],
@@ -200,53 +344,74 @@ class SolidTestCase(SourceTestCase):
                 [0x40, 0x40, 0x40, 0x40],
                 [0x40, 0x40, 0x40, 0x40],
             ],
-        ], dtype=np.uint8)
+        ], dtype=np.uint8)).any()
 
-        # Test data and state.
-        kwargs = {
-            'color': 0x40 / 0xff,
+
+class TestSpheres:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given only required parameters, :class:`Spheres` should
+        initialize the required attributes with the given values.
+        It should then initialize the optional attributes with
+        default values.
+        """
+        required = {
+            'radius': 2.0,
         }
-        pattern = p.Solid
+        optional = {
+            'offset': '',
+        }
+        obj = p.Spheres(**required)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
 
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
-
-
-class SpheresTestCase(SourceTestCase):
-    def test_spheres_fill_x(self):
-        """Given a size and location, Spheres.fill should return a
-        volume filled a radial gradient.
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Spheres` should
+        initialize the given attributes with the given values.
         """
-        # Expected values.
-        exp = np.array([
-            [
-                [0x2e, 0x42, 0x53, 0x60, 0x68, 0x6b, 0x68, 0x60],
-                [0x42, 0x58, 0x6b, 0x7b, 0x85, 0x89, 0x85, 0x7b],
-                [0x53, 0x6b, 0x82, 0x94, 0xa1, 0xa6, 0xa1, 0x94],
-                [0x60, 0x7b, 0x94, 0xab, 0xbd, 0xc4, 0xbd, 0xab],
-                [0x68, 0x85, 0xa1, 0xbd, 0xd5, 0xe1, 0xd5, 0xbd],
-                [0x6b, 0x89, 0xa6, 0xc4, 0xe1, 0xff, 0xe1, 0xc4],
-                [0x68, 0x85, 0xa1, 0xbd, 0xd5, 0xe1, 0xd5, 0xbd],
-                [0x60, 0x7b, 0x94, 0xab, 0xbd, 0xc4, 0xbd, 0xab],
-            ],
-        ], dtype=np.uint8)
-
-        # Set up test data and state.
-        kwargs = {
-            'radius': 5,
+        required = {
+            'radius': 2.0,
+        }
+        optional = {
             'offset': 'x',
         }
-        pattern = p.Spheres
+        obj = p.Spheres(**required, **optional)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
 
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
-
-    def test_spheres_fill_y(self):
-        """Given a size and location, Spheres.fill should return a
-        volume filled a radial gradient.
+    # Tests for fill.
+    def test_fill_x(self):
+        """Given the shape of the output, :meth:`Spheres.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
         """
-        # Expected values.
-        exp = np.array([
+        obj = p.Spheres(radius=5, offset='x')
+        result = obj.fill((1, 8, 8))
+        assert (mkhex(result) == np.array([
+            [
+                [0x2e, 0x42, 0x53, 0x60, 0x68, 0x6b, 0x68, 0x60],
+                [0x42, 0x58, 0x6b, 0x7b, 0x85, 0x89, 0x85, 0x7b],
+                [0x53, 0x6b, 0x82, 0x94, 0xa1, 0xa6, 0xa1, 0x94],
+                [0x60, 0x7b, 0x94, 0xab, 0xbd, 0xc4, 0xbd, 0xab],
+                [0x68, 0x85, 0xa1, 0xbd, 0xd5, 0xe1, 0xd5, 0xbd],
+                [0x6b, 0x89, 0xa6, 0xc4, 0xe1, 0xff, 0xe1, 0xc4],
+                [0x68, 0x85, 0xa1, 0xbd, 0xd5, 0xe1, 0xd5, 0xbd],
+                [0x60, 0x7b, 0x94, 0xab, 0xbd, 0xc4, 0xbd, 0xab],
+            ],
+        ], dtype=np.uint8)).any()
+
+    def test_fill_y(self):
+        """Given the shape of the output, :meth:`Spheres.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
+        """
+        obj = p.Spheres(radius=5, offset='y')
+        result = obj.fill((1, 8, 8))
+        assert (mkhex(result) == np.array([
             [
                 [0x6b, 0x89, 0xa6, 0xc4, 0xe1, 0xff, 0xe1, 0xc4],
                 [0x68, 0x85, 0xa1, 0xbd, 0xd5, 0xe1, 0xd5, 0xbd],
@@ -257,26 +422,50 @@ class SpheresTestCase(SourceTestCase):
                 [0x42, 0x58, 0x6b, 0x7b, 0x85, 0x89, 0x85, 0x7b],
                 [0x53, 0x6b, 0x82, 0x94, 0xa1, 0xa6, 0xa1, 0x94],
             ],
-        ], dtype=np.uint8)
-
-        # Set up test data and state.
-        kwargs = {
-            'radius': 5,
-            'offset': 'y',
-        }
-        pattern = p.Spheres
-
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
+        ], dtype=np.uint8)).any()
 
 
-class SpotTestCase(SourceTestCase):
-    def test_spot_fill(self):
-        """Given a size and location, Spot.fill should return a
-        volume filled with a spot of color.
+class TestSpot:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given only required parameters, :class:`Spot` should
+        initialize the required attributes with the given values.
+        It should then initialize the optional attributes with
+        default values.
         """
-        # Expected values.
-        exp = np.array([
+        required = {
+            'radius': 2.0,
+        }
+        optional = {}
+        obj = p.Spot(**required)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Spot` should
+        initialize the given attributes with the given values.
+        """
+        required = {
+            'radius': 2.0,
+        }
+        optional = {}
+        obj = p.Spot(**required, **optional)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    # Tests for fill.
+    def test_fill(self):
+        """Given the shape of an output array, :meth:`Spot.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
+        """
+        obj = p.Spot(radius=5)
+        result = obj.fill((1, 8, 8))
+        assert (mkhex(result) == np.array([
             [
                 [0x32, 0x4a, 0x5d, 0x6a, 0x6e, 0x6a, 0x5d, 0x4a],
                 [0x4a, 0x66, 0x7c, 0x8c, 0x92, 0x8c, 0x7c, 0x66],
@@ -287,25 +476,18 @@ class SpotTestCase(SourceTestCase):
                 [0x5d, 0x7c, 0x99, 0xae, 0xb6, 0xae, 0x99, 0x7c],
                 [0x4a, 0x66, 0x7c, 0x8c, 0x92, 0x8c, 0x7c, 0x66],
             ],
-        ], dtype=np.uint8)
-
-        # Set up test data and state.
-        kwargs = {
-            'radius': 5,
-        }
-        pattern = p.Spot
-
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
+        ], dtype=np.uint8)).any()
 
 
-class TextTestCase(SourceTestCase):
-    def test_text_fill(self):
-        """Given a size and location, Text.fill should return a
-        volume with the configured text.
+class TestText:
+    def test_fill(self):
+        """Given the shape of an output array, :meth:`Spot.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
         """
-        # Expected values.
-        exp = np.array([
+        obj = p.Text(text='s', size=6, origin=(3, 0))
+        result = obj.fill((1, 8, 8))
+        assert (mkhex(result) == np.array([
             [
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
                 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
@@ -316,25 +498,54 @@ class TextTestCase(SourceTestCase):
                 [0x00, 0x00, 0x00, 0x61, 0x6f, 0x8a, 0x00, 0x00],
                 [0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00],
             ],
-        ], dtype=np.uint8)
+        ], dtype=np.uint8)).any()
 
-        # Set up test data and state.
-        kwargs = {
-            'text': 's',
-            'size': 6,
-            'origin': (3, 0),
+
+class TestWaves:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given only required parameters, :class:`Waves` should
+        initialize the required attributes with the given values.
+        It should then initialize the optional attributes with
+        default values.
+        """
+        required = {
+            'length': 2.0,
         }
-        pattern = p.Text
+        optional = {
+            'growth': 'l',
+        }
+        obj = p.Waves(**required)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
 
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Waves` should
+        initialize the given attributes with the given values.
+        """
+        required = {
+            'length': 2.0,
+        }
+        optional = {
+            'growth': 'g',
+        }
+        obj = p.Waves(**required, **optional)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
 
-
-class WaveTestCase(SourceTestCase):
-    def test_waves_fill(self):
-        """Waves.fill should return a series of concentric rings."""
-        # Expected value.
-        exp = np.array([
+    # Tests for fill.
+    def test_fill(self):
+        """Given the shape of an output array, :meth:`Waves.fill`
+        should return a volume filled with a box of the origin,
+        dimensions, and color given when the object was created.
+        """
+        obj = p.Waves(length=3, growth='l')
+        result = obj.fill((1, 8, 8))
+        assert (mkhex(result) == np.array([
             [
                 [0x4c, 0x21, 0x75, 0xa3, 0xa3, 0x75, 0x21, 0x4c],
                 [0x21, 0xa3, 0xf0, 0xb2, 0xb2, 0xf0, 0xa3, 0x21],
@@ -345,14 +556,4 @@ class WaveTestCase(SourceTestCase):
                 [0x21, 0xa3, 0xf0, 0xb2, 0xb2, 0xf0, 0xa3, 0x21],
                 [0x4c, 0x21, 0x75, 0xa3, 0xa3, 0x75, 0x21, 0x4c],
             ],
-        ], dtype=np.uint8)
-
-        # Set up test data and state.
-        pattern = p.Waves
-        kwargs = {
-            'length': 3,
-            'growth': 'l',
-        }
-
-        # Run test and determine results.
-        self.fill_test(exp, pattern, kwargs)
+        ], dtype=np.uint8)).any()
