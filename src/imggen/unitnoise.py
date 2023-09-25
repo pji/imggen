@@ -9,8 +9,8 @@ from typing import NamedTuple, Sequence
 import numpy as np
 from numpy.typing import NDArray
 
-from imggen.noise import Noise, Seed
 from imggen.imggen import ImgAry, Loc, Size, Source, X, Y, Z
+from imggen.noise import Noise, Seed
 from imggen.utility import lerp
 
 

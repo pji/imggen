@@ -9,8 +9,8 @@ from typing import Optional, Sequence
 import numpy as np
 from numpy.typing import NDArray
 
-from imggen.noise import Seed, Noise
 from imggen.imggen import ImgAry, Loc, Size
+from imggen.noise import Noise, Seed
 
 
 # Public classes.
