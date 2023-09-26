@@ -12,6 +12,10 @@ import imggen
 from imgwriter import write
 
 
+# Defaults.
+OctaveNoiseDefaults = imggen.unitnoise.OctaveNoiseDefaults
+
+
 # Noise generators.
 def make_coscurtains(args: ap.Namespace) -> imggen.ImgAry:
     """Generate cosine curtains.
@@ -64,6 +68,75 @@ def make_noise(args: ap.Namespace) -> imggen.ImgAry:
     return noise.fill(size, loc)
 
 
+def make_ocoscurtains(args: ap.Namespace) -> imggen.ImgAry:
+    """Generate octaves cosine curtains.
+    
+    :param args: The arguments passed from the command line.
+    :return: The noise as a :class:`numpy.ndarray`.
+    :rtype: numpy.ndarray
+    """
+    noise = imggen.unitnoise.OctaveCosineCurtains(
+        octaves=args.octaves,
+        persistence=args.persistence,
+        amplitude=args.amplitude,
+        frequency=args.frequency,
+        unit=(1, *args.unit),
+        min=args.min,
+        max=args.max,
+        repeats=args.repeats,
+        seed=args.seed
+    )
+    size = (1, args.height, args.width)
+    loc = (0, *args.location)
+    return noise.fill(size, loc)
+
+
+def make_ocurtains(args: ap.Namespace) -> imggen.ImgAry:
+    """Generate octave curtains.
+    
+    :param args: The arguments passed from the command line.
+    :return: The noise as a :class:`numpy.ndarray`.
+    :rtype: numpy.ndarray
+    """
+    noise = imggen.unitnoise.OctaveCurtains(
+        octaves=args.octaves,
+        persistence=args.persistence,
+        amplitude=args.amplitude,
+        frequency=args.frequency,
+        unit=(1, *args.unit),
+        min=args.min,
+        max=args.max,
+        repeats=args.repeats,
+        seed=args.seed
+    )
+    size = (1, args.height, args.width)
+    loc = (0, *args.location)
+    return noise.fill(size, loc)
+
+
+def make_operlin(args: ap.Namespace) -> imggen.ImgAry:
+    """Generate octave perlin noise.
+    
+    :param args: The arguments passed from the command line.
+    :return: The noise as a :class:`numpy.ndarray`.
+    :rtype: numpy.ndarray
+    """
+    noise = imggen.perlin.OctavePerlin(
+        octaves=args.octaves,
+        persistence=args.persistence,
+        amplitude=args.amplitude,
+        frequency=args.frequency,
+        unit=(1, *args.unit),
+        min=args.min,
+        max=args.max,
+        repeats=args.repeats,
+        seed=args.seed
+    )
+    size = (1, args.height, args.width)
+    loc = (0, *args.location)
+    return noise.fill(size, loc)
+
+
 def make_ounitnoise(args: ap.Namespace) -> imggen.ImgAry:
     """Generate octave random blob noise.
     
@@ -76,6 +149,25 @@ def make_ounitnoise(args: ap.Namespace) -> imggen.ImgAry:
         persistence=args.persistence,
         amplitude=args.amplitude,
         frequency=args.frequency,
+        unit=(1, *args.unit),
+        min=args.min,
+        max=args.max,
+        repeats=args.repeats,
+        seed=args.seed
+    )
+    size = (1, args.height, args.width)
+    loc = (0, *args.location)
+    return noise.fill(size, loc)
+
+
+def make_perlin(args: ap.Namespace) -> imggen.ImgAry:
+    """Generate perlin noise.
+    
+    :param args: The arguments passed from the command line.
+    :return: The noise as a :class:`numpy.ndarray`.
+    :rtype: numpy.ndarray
+    """
+    noise = imggen.perlin.Perlin(
         unit=(1, *args.unit),
         min=args.min,
         max=args.max,
@@ -117,7 +209,11 @@ def parse_invocation() -> ap.ArgumentParser:
     parse_coscurtains(spa)
     parse_curtains(spa)
     parse_noise(spa)
+    parse_ocoscurtains(spa)
+    parse_ocurtains(spa)
+    parse_operlin(spa)
     parse_ounitnoise(spa)
+    parse_perlin(spa)
     parse_unitnoise(spa)
     
     p.add_argument(
@@ -197,6 +293,57 @@ def parse_noise(spa: ap._SubParsersAction) -> None:
     sp.set_defaults(func=make_noise)
 
 
+def parse_ocoscurtains(spa: ap._SubParsersAction) -> None:
+    """Parse arguments for ocoscurtains.
+    
+    :param spa: The subparser.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp = spa.add_parser(
+        'ocoscurtains',
+        description='Generate octave cosine curtains.'
+    )
+    add_octave_arguments(sp)
+    add_unitnoise_arguments(sp)
+    add_noise_arguments(sp)
+    sp.set_defaults(func=make_ocoscurtains)
+
+
+def parse_ocurtains(spa: ap._SubParsersAction) -> None:
+    """Parse arguments for octave curtains.
+    
+    :param spa: The subparser.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp = spa.add_parser(
+        'ocurtains',
+        description='Generate octave curtains.'
+    )
+    add_octave_arguments(sp)
+    add_unitnoise_arguments(sp)
+    add_noise_arguments(sp)
+    sp.set_defaults(func=make_ocurtains)
+
+
+def parse_operlin(spa: ap._SubParsersAction) -> None:
+    """Parse arguments for operlin.
+    
+    :param spa: The subparser.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp = spa.add_parser(
+        'operlin',
+        description='Generate octave perlin noise.'
+    )
+    add_octave_arguments(sp, imggen.perlin.defaults)
+    add_unitnoise_arguments(sp)
+    add_noise_arguments(sp)
+    sp.set_defaults(func=make_operlin)
+
+
 def parse_ounitnoise(spa: ap._SubParsersAction) -> None:
     """Parse arguments for octave unit noise.
     
@@ -212,6 +359,22 @@ def parse_ounitnoise(spa: ap._SubParsersAction) -> None:
     add_octave_arguments(sp)
     add_noise_arguments(sp)
     sp.set_defaults(func=make_ounitnoise)
+
+
+def parse_perlin(spa: ap._SubParsersAction) -> None:
+    """Parse arguments for perlin.
+    
+    :param spa: The subparser.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp = spa.add_parser(
+        'perlin',
+        description='Generate perlin noise.'
+    )
+    add_unitnoise_arguments(sp)
+    add_noise_arguments(sp)
+    sp.set_defaults(func=make_perlin)
 
 
 def parse_unitnoise(spa: ap._SubParsersAction) -> None:
@@ -245,38 +408,42 @@ def add_noise_arguments(sp: ap.ArgumentParser) -> None:
     )
 
 
-def add_octave_arguments(sp: ap.ArgumentParser) -> None:
+def add_octave_arguments(
+    sp: ap.ArgumentParser,
+    d: OctaveNoiseDefaults = OctaveNoiseDefaults()
+) -> None:
     """Add octave noise arguments to a subparser.
     
     :param sp: A subparser that accepts noise arguments.
+    :param d: Default settings for the noise arguments.
     :return: None.
     :rtype: NoneType
     """
     sp.add_argument(
         '-o', '--octaves',
         action='store',
-        default=4,
+        default=d.octaves,
         help='The number of octaves.',
         type=int
     )
     sp.add_argument(
         '-p', '--persistence',
         action='store',
-        default=8,
+        default=d.persistence,
         help='The persistence of octaves.',
         type=int
     )
     sp.add_argument(
         '-a', '--amplitude',
         action='store',
-        default=8,
+        default=d.amplitude,
         help='The amplitude of octaves.',
         type=int
     )
     sp.add_argument(
         '-f', '--frequency',
         action='store',
-        default=2,
+        default=d.frequency,
         help='The frequency of octaves.',
         type=int
     )
@@ -292,7 +459,7 @@ def add_unitnoise_arguments(sp: ap.ArgumentParser) -> None:
     sp.add_argument(
         '-u', '--unit',
         action='store',
-        default=(100, 100),
+        default=(1024, 1024),
         help='The size of a unit within the noise.',
         nargs=2,
         type=int
@@ -314,7 +481,7 @@ def add_unitnoise_arguments(sp: ap.ArgumentParser) -> None:
     sp.add_argument(
         '-r', '--repeats',
         action='store',
-        default=0,
+        default=1,
         help='The how often the values can be repeated within the noise.',
         type=int
     )
