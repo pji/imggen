@@ -23,6 +23,7 @@ clean:
 	rm -rf src/imggen/pattern/__pycache__
 	rm -f *.log
 	rm -f *.json
+	rm -f *.jpg
 	python -m pipenv uninstall imggen
 
 .PHONY: docs

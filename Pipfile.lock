@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "fd037824c49612190f4335e122b7ffad52b3fe3f2328266760352e3aaaec874c"
+            "sha256": "79dac94475d77af920793ea7280efbd37323bf2d125f2fabe7aab3cc6d34d060"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -184,6 +184,9 @@
         "imggen": {
             "editable": true,
             "file": "."
+        },
+        "imgwriter": {
+            "file": "../imgwriter"
         },
         "iniconfig": {
             "hashes": [

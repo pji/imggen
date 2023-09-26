@@ -177,8 +177,10 @@ class Curtains(UnitNoise):
     _axes = 2
 
     # Public methods.
-    def fill(self, size: Sequence[int],
-             loc: Sequence[int] = (0, 0, 0)) -> np.ndarray:
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Return a space filled with noise."""
         noise_size = (size[Z], size[X])
         noise_loc = (loc[Z], loc[X])

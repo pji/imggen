@@ -16,6 +16,7 @@ pytest-mock = "*"
 types-pillow = "*"
 isort = "*"
 tox = "*"
+imgwriter = {file = "../imgwriter"}
 imggen = {file = ".", editable = true}
 
 [requires]
