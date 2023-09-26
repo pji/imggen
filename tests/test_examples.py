@@ -36,3 +36,21 @@ class TestNoisy:
             actual
         ])
         compare_files(actual, expected)
+
+    def test_unitnoise(self, tmp_path):
+        """When unitnoise is invoked, `noisy.py` should write random
+        pixel noise to the given file.
+        """
+        fname = '__test_noisy_unitnoise.jpg'
+        expected = f'tests/data/{fname}'
+        actual = tmp_path / fname
+
+        run([
+            'python',
+            'examples/noisy.py',
+            'unitnoise',
+            '-s', 'spam',
+            '640', '480',
+            actual
+        ])
+        compare_files(actual, expected)

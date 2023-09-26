@@ -14,6 +14,12 @@ def build_noisy():
     a = noise.fill((1, 480, 640))
     iw.write('tests/data/__test_noisy_noise.jpg', a)
 
+    noise = ig.unitnoise.UnitNoise(
+        unit=(1, 1024, 1024), seed='spam', repeats=1
+    )
+    a = noise.fill((1, 480, 640))
+    iw.write('tests/data/__test_noisy_unitnoise.jpg', a)
+
 
 if __name__ == '__main__':
     build_noisy()
