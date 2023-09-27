@@ -14,6 +14,13 @@ from imggen.noise import Noise, Seed
 from imggen.utility import lerp
 
 
+# Names available for import.
+__all__ = [
+    'CosineCurtains', 'Curtains', 'OctaveCosineCurtains', 'OctaveCurtains',
+    'OctaveUnitNoise', 'UnitNoise',
+]
+
+
 # Public classes.
 class UnitNoise(Noise):
     """Create image noise that is based on a unit grid.
@@ -39,6 +46,8 @@ class UnitNoise(Noise):
         same values. Note: strings that are passed to seed will
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
+    :return: An instance of :class:`UnitNoise`.
+    :rtype: imggen.unitnoise.UnitNoise
     """
     # The number of dimensions the noise occurs in.
     _axes = 3
@@ -172,7 +181,32 @@ class UnitNoise(Noise):
 
 
 class Curtains(UnitNoise):
-    """Unit noise that creates vertical lines, like curtains."""
+    """Unit noise that creates vertical lines, like curtains.
+    
+    :param unit: The number of pixels between vertices along an
+        axis on the unit grid. The vertices are the locations where
+        colors for the gradient are set. This is involved in setting
+        the maximum size of noise that can be generated from
+        the object.
+    :param min: (Optional.) The minimum value of a vertex of the unit
+        grid. This is involved in setting the maximum size of noise
+        that can be generated from the object.
+    :param max: (Optional.) The maximum value of a vertex of the unit
+        grid. This is involved in setting the maximum size of noise
+        that can be generated from the object.
+    :param repeats: (Optional.) The number of times each value can
+        appear on the unit grid. This is involved in setting the
+        maximum size of noise that can be generated from the object.
+    :param seed: (Optional.) An int, bytes, or string used to seed
+        therandom number generator used to generate the image data.
+        If no value is passed, the RNG will not be seeded, so
+        serialized versions of this source will not produce the
+        same values. Note: strings that are passed to seed will
+        be converted to UTF-8 bytes before being converted to
+        integers for seeding.
+    :return: An instance of :class:`UnitNoise`.
+    :rtype: imggen.unitnoise.UnitNoise
+    """
     # The number of dimensions the noise occurs in.
     _axes = 2
 
@@ -192,6 +226,30 @@ class CosineCurtains(Curtains):
     """Unit noise that creates vertical lines with a cosine-based ease
     on the color change between grid points, making them appear to
     flow more like curtains.
+    
+    :param unit: The number of pixels between vertices along an
+        axis on the unit grid. The vertices are the locations where
+        colors for the gradient are set. This is involved in setting
+        the maximum size of noise that can be generated from
+        the object.
+    :param min: (Optional.) The minimum value of a vertex of the unit
+        grid. This is involved in setting the maximum size of noise
+        that can be generated from the object.
+    :param max: (Optional.) The maximum value of a vertex of the unit
+        grid. This is involved in setting the maximum size of noise
+        that can be generated from the object.
+    :param repeats: (Optional.) The number of times each value can
+        appear on the unit grid. This is involved in setting the
+        maximum size of noise that can be generated from the object.
+    :param seed: (Optional.) An int, bytes, or string used to seed
+        therandom number generator used to generate the image data.
+        If no value is passed, the RNG will not be seeded, so
+        serialized versions of this source will not produce the
+        same values. Note: strings that are passed to seed will
+        be converted to UTF-8 bytes before being converted to
+        integers for seeding.
+    :return: An instance of :class:`UnitNoise`.
+    :rtype: imggen.unitnoise.UnitNoise
     """
     # Private methods.
     def _map_unit_grid(
@@ -206,6 +264,21 @@ class CosineCurtains(Curtains):
 
 # Factories.
 class OctaveNoiseDefaults(NamedTuple):
+    """The default values for a new octave noise class created by
+    :func:`imggen.unitnoise.octave_noise_factory`.
+    
+    :param octaves: (Optional.) The default value of octaves.
+    :param persistence: (Optional.) The default value of persistence.
+    :param amplitude: (Optional.) The default value of amplitude.
+    :param frequency: (Optional.) The default value of frequency.
+    :param unit: (Optional.) The default value of unit.
+    :param min: (Optional.) The default value of min.
+    :param max: (Optional.) The default value of max.
+    :param repeats: (Optional.) The default value of repeats.
+    :param seed: (Optional.) The default value of seed.
+    :return: An instance of :class:`OctaveNoiseDefaults`.
+    :rtyoe: imggen.unitnoise.OctaveNoiseDefaults
+    """
     octaves: int = 4
     persistence: float = 8
     amplitude: float = 8
@@ -221,6 +294,29 @@ def octave_noise_factory(
     source: type[UnitNoise],
     defaults: OctaveNoiseDefaults
 ) -> type:
+    """A class factory that generates octave versions of the subclasses
+    of :class:`UnitNoise`.
+    
+    Octave noise contains multiple layers, called "octaves," of the
+    noise being generated and added together. The size of the units
+    within each octave changes based on the frequency. The amount
+    each octave affects the final image is based on the amplitude
+    and persistence.
+    
+    .. warning:
+        This factory only works with subclasses of :class:`UnitNoise`.
+        This is because the octave algorithm uses the unit size of the
+        source to affect the size of the variations within the noise.
+        Other types of noise may be able to be octaved, but they will
+        need a different algorithm than the one used by this factory.
+    
+    :param source: The type of :class:`UnitNoise` to use when generating
+        the octave noise.
+    :param defaults: The default values for the parameters of the class
+        being created.
+    :return: A subclass of :class:`UnitNoise`.
+    :rtype: type
+    """
     class OctaveNoise(Source):
         source: type[UnitNoise]
 

@@ -13,6 +13,10 @@ from imggen.imggen import ImgAry, Loc, Size, Source
 from imggen.noise import Noise, Seed
 
 
+# Names available for import.
+__all__ = ['OctaveWorley', 'Worley',]
+
+
 # Public classes.
 class Worley(Noise):
     """Fill a space with Worley noise.
@@ -101,6 +105,43 @@ class Worley(Noise):
 
 
 class OctaveWorley(Source):
+    """Fill a space with octaves of Worley noise.
+
+    Worley noise is a type of cellular noise. The color value of each
+    pixel within the space is determined by the distance from the pixel
+    to the nearest of a set of randomly located points within the
+    image. This creates structures within the noise that look like
+    cells or pits.
+
+    This implementation is heavily optimized from code found here:
+    https://code.activestate.com/recipes/578459-worley-noise-generator/
+
+    :param octaves: The number of octaves of noise in the image. An
+        octave is a layer of the noise with a different number of
+        points added on top of other layers of noise.
+    :param persistence: How the weight of each octave changes.
+    :param amplitude: The weight of the first octave.
+    :param frequency: How the number of points in each octave changes.
+    :param points: The number of cells in the image. A cell is a
+        randomly placed point and the range of pixels that are
+        closer to it than any other point.
+    :param volume: (Optional.) The size of the volume that the points
+        will be placed in. The default is for them to be evenly spread
+        through the space generated during the fill.
+    :param origin: (Optional.) The location of the upper-top-left
+        corner of the volume that contains the points. This defaults
+        to the upper-top-left corner of the space generated during the
+        fill.
+    :param seed: (Optional.) An int, bytes, or string used to seed
+        therandom number generator used to generate the image data.
+        If no value is passed, the RNG will not be seeded, so
+        serialized versions of this source will not product the
+        same values. Note: strings that are passed to seed will
+        be converted to UTF-8 bytes before being converted to
+        integers for seeding.
+    :return: :class:Worley object.
+    :rtype: imggen.worley.Worley
+    """
     def __init__(
         self, octaves: int = 4,
         persistence: float = 8,

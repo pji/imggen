@@ -12,6 +12,14 @@ from PIL import Image, ImageDraw, ImageFont
 from imggen.imggen import ImgAry, Loc, Size, Source, X, Y, Z
 
 
+# Names available for import.
+__all__ = [
+    'Box', 'Gradient', 'Lines', 'Rays', 'Rings', 'Solid', 'Spheres',
+    'Spot', 'Text', 'Waves',
+]
+
+
+# Public classes.
 class Box(Source):
     """Draw a box.
 
