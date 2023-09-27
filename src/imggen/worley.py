@@ -9,7 +9,7 @@ from typing import Optional, Sequence
 import numpy as np
 from numpy.typing import NDArray
 
-from imggen.imggen import ImgAry, Loc, Size
+from imggen.imggen import ImgAry, Loc, Size, Source
 from imggen.noise import Noise, Seed
 
 
@@ -98,3 +98,45 @@ class Worley(Noise):
     def _hypot(self, point: Loc, indices: NDArray[np.int_]) -> ImgAry:
         axis_dist = [p - i for p, i in zip(point, indices)]
         return np.sqrt(sum(d ** 2 for d in axis_dist))
+
+
+class OctaveWorley(Source):
+    def __init__(
+        self, octaves: int = 4,
+        persistence: float = 8,
+        amplitude: float = 8,
+        frequency: float = 2,
+        points: int = 10,
+        volume: Optional[Size] = None,
+        origin: Loc = (0, 0, 0),
+        seed: Seed = None
+    ) -> None:
+        self.octaves = octaves
+        self.persistence = persistence
+        self.amplitude = amplitude
+        self.frequency = frequency
+        self.points = points
+        self.volume = volume
+        self.origin = origin
+        self.seed = seed
+    
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> ImgAry:
+        a = np.zeros(tuple(size), dtype=float)
+        max_value = 0.0
+        for i in range(self.octaves):
+            amp = self.amplitude + (self.persistence * i)
+            freq = self.frequency * 2 ** i
+            points = self.points * freq
+            octave = Worley(
+                points=points,
+                volume=self.volume,
+                origin=self.origin,
+                seed=self.seed
+            )
+            a += octave.fill(size, loc) * amp
+            max_value += amp
+        a /= max_value
+        return a

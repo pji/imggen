@@ -160,6 +160,34 @@ def make_ounitnoise(args: ap.Namespace) -> imggen.ImgAry:
     return noise.fill(size, loc)
 
 
+def make_oworley(args: ap.Namespace) -> imggen.ImgAry:
+    """Generate octave worley noise.
+    
+    :param args: The arguments passed from the command line.
+    :return: The noise as a :class:`numpy.ndarray`.
+    :rtype: numpy.ndarray
+    """
+    vwidth, vheight = args.volume
+    if vwidth < 0:
+        vwidth = args.width
+    if vheight < 0:
+        vheight = args.height
+        
+    noise = imggen.worley.OctaveWorley(
+        octaves=args.octaves,
+        persistence=args.persistence,
+        amplitude=args.amplitude,
+        frequency=args.frequency,
+        points=args.points,
+        volume=(1, vheight, vwidth),
+        origin=(0, *args.origin),
+        seed=args.seed
+    )
+    size = (1, args.height, args.width)
+    loc = (0, *args.location)
+    return noise.fill(size, loc)
+
+
 def make_perlin(args: ap.Namespace) -> imggen.ImgAry:
     """Generate perlin noise.
     
@@ -198,6 +226,30 @@ def make_unitnoise(args: ap.Namespace) -> imggen.ImgAry:
     return noise.fill(size, loc)
 
 
+def make_worley(args: ap.Namespace) -> imggen.ImgAry:
+    """Generate random blob noise.
+    
+    :param args: The arguments passed from the command line.
+    :return: The noise as a :class:`numpy.ndarray`.
+    :rtype: numpy.ndarray
+    """
+    vwidth, vheight = args.volume
+    if vwidth < 0:
+        vwidth = args.width
+    if vheight < 0:
+        vheight = args.height
+        
+    noise = imggen.worley.Worley(
+        points=args.points,
+        volume=(1, vheight, vwidth),
+        origin=(0, *args.origin),
+        seed=args.seed
+    )
+    size = (1, args.height, args.width)
+    loc = (0, *args.location)
+    return noise.fill(size, loc)
+
+
 # Command line interface.
 def parse_invocation() -> ap.ArgumentParser:
     """Build a CLI parser."""
@@ -213,8 +265,10 @@ def parse_invocation() -> ap.ArgumentParser:
     parse_ocurtains(spa)
     parse_operlin(spa)
     parse_ounitnoise(spa)
+    parse_oworley(spa)
     parse_perlin(spa)
     parse_unitnoise(spa)
+    parse_worley(spa)
     
     p.add_argument(
         'width',
@@ -361,6 +415,23 @@ def parse_ounitnoise(spa: ap._SubParsersAction) -> None:
     sp.set_defaults(func=make_ounitnoise)
 
 
+def parse_oworley(spa: ap._SubParsersAction) -> None:
+    """Parse arguments for octave worley noise.
+    
+    :param spa: The subparser.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp = spa.add_parser(
+        'oworley',
+        description='Generate octave worley noise.'
+    )
+    add_octave_arguments(sp)
+    add_worley_arguments(sp)
+    add_noise_arguments(sp)
+    sp.set_defaults(func=make_worley)
+
+
 def parse_perlin(spa: ap._SubParsersAction) -> None:
     """Parse arguments for perlin.
     
@@ -391,6 +462,22 @@ def parse_unitnoise(spa: ap._SubParsersAction) -> None:
     add_unitnoise_arguments(sp)
     add_noise_arguments(sp)
     sp.set_defaults(func=make_unitnoise)
+
+
+def parse_worley(spa: ap._SubParsersAction) -> None:
+    """Parse arguments for worley noise.
+    
+    :param spa: The subparser.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp = spa.add_parser(
+        'worley',
+        description='Generate worley noise.'
+    )
+    add_worley_arguments(sp)
+    add_noise_arguments(sp)
+    sp.set_defaults(func=make_worley)
 
 
 def add_noise_arguments(sp: ap.ArgumentParser) -> None:
@@ -483,6 +570,39 @@ def add_unitnoise_arguments(sp: ap.ArgumentParser) -> None:
         action='store',
         default=1,
         help='The how often the values can be repeated within the noise.',
+        type=int
+    )
+
+
+def add_worley_arguments(sp: ap.ArgumentParser) -> None:
+    """Add worley noise arguments to a subparser.
+    
+    :param sp: A subparser that accepts noise arguments.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp.add_argument(
+        '-O', '--origin',
+        action='store',
+        default=(0, 0),
+        help='The point within the volume to start taking noise.',
+        nargs=2,
+        type=int
+    )
+    sp.add_argument(
+        '-P', '--points',
+        action='store',
+        default=16,
+        help='The number of cells in the noise.',
+        nargs=2,
+        type=int
+    )
+    sp.add_argument(
+        '-v', '--volume',
+        action='store',
+        default=(-1, -1),
+        help='The total volume of noise to generate.',
+        nargs=2,
         type=int
     )
 

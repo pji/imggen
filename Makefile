@@ -39,7 +39,7 @@ pre:
 
 .PHONY: test
 test:
-	python -m pipenv install --dev -e .
+	# python -m pipenv install --dev -e .
 	python -m pytest --capture=fd
 
 
