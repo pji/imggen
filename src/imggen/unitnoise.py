@@ -4,7 +4,7 @@ unitnoise
 
 Image data sources that create unit noise.
 """
-from typing import NamedTuple, Sequence
+from typing import NamedTuple, Sequence, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -50,7 +50,7 @@ class UnitNoise(Noise):
     :rtype: imggen.unitnoise.UnitNoise
     """
     # The number of dimensions the noise occurs in.
-    _axes = 3
+    _axes: int = 3
 
     def __init__(
         self, unit: Sequence[int],
@@ -163,9 +163,12 @@ class UnitNoise(Noise):
         return whole, parts
 
     def _interp(
-        self, grids: dict[str, NDArray[np.int64]],
+        self, grids: Union[
+            dict[str, NDArray[np.int64]],
+            dict[str, NDArray[np.float_]]
+        ],
         parts: NDArray[np.float_]
-    ) -> NDArray[np.float_]:
+    ) -> ImgAry:
         """Interpolate the values of each pixel of image data."""
         if len(grids) > 2:
             new_grids = {}
@@ -208,7 +211,7 @@ class Curtains(UnitNoise):
     :rtype: imggen.unitnoise.UnitNoise
     """
     # The number of dimensions the noise occurs in.
-    _axes = 2
+    _axes: int = 2
 
     # Public methods.
     def fill(
@@ -318,6 +321,18 @@ def octave_noise_factory(
     :rtype: type
     """
     class OctaveNoise(Source):
+        """A source for octave noise. Parameters are similar to the
+        :class:`UnitNoise` being octaved, with the following additions.
+        
+        :param octaves: The number of octaves of noise in the image. An
+            octave is a layer of the noise with a different number of
+            points added on top of other layers of noise.
+        :param persistence: How the weight of each octave changes.
+        :param amplitude: The weight of the first octave.
+        :param frequency: How the number of points in each octave changes.
+        :return: An octave version of the base class.
+        :rtype: imggen.imggen.Source
+        """
         source: type[UnitNoise]
 
         def __init__(

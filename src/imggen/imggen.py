@@ -60,11 +60,12 @@ class Serializable(ABC):
 
 
 class Source(Serializable):
+    """A source of image data."""
     @abstractmethod
     def fill(
-        self, size: Sequence[int],
-        loc: Sequence[int] = (0, 0, 0)
-    ) -> NDArray[np.float_]:
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Fill a volume with image data.
 
         :param size: The size of the volume of image data to generate.

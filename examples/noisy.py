@@ -24,7 +24,7 @@ def make_coscurtains(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.unitnoise.CosineCurtains(
+    noise = imggen.CosineCurtains(
         unit=(1, *args.unit),
         min=args.min,
         max=args.max,
@@ -43,7 +43,7 @@ def make_curtains(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.unitnoise.Curtains(
+    noise = imggen.Curtains(
         unit=(1, *args.unit),
         min=args.min,
         max=args.max,
@@ -62,7 +62,7 @@ def make_noise(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.noise.Noise(seed=args.seed)
+    noise = imggen.Noise(seed=args.seed)
     size = (1, args.height, args.width)
     loc = (0, *args.location)
     return noise.fill(size, loc)
@@ -75,7 +75,7 @@ def make_ocoscurtains(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.unitnoise.OctaveCosineCurtains(
+    noise = imggen.OctaveCosineCurtains(
         octaves=args.octaves,
         persistence=args.persistence,
         amplitude=args.amplitude,
@@ -98,7 +98,7 @@ def make_ocurtains(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.unitnoise.OctaveCurtains(
+    noise = imggen.OctaveCurtains(
         octaves=args.octaves,
         persistence=args.persistence,
         amplitude=args.amplitude,
@@ -121,7 +121,7 @@ def make_operlin(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.perlin.OctavePerlin(
+    noise = imggen.OctavePerlin(
         octaves=args.octaves,
         persistence=args.persistence,
         amplitude=args.amplitude,
@@ -144,7 +144,7 @@ def make_ounitnoise(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.unitnoise.OctaveUnitNoise(
+    noise = imggen.OctaveUnitNoise(
         octaves=args.octaves,
         persistence=args.persistence,
         amplitude=args.amplitude,
@@ -173,7 +173,7 @@ def make_oworley(args: ap.Namespace) -> imggen.ImgAry:
     if vheight < 0:
         vheight = args.height
         
-    noise = imggen.worley.OctaveWorley(
+    noise = imggen.OctaveWorley(
         octaves=args.octaves,
         persistence=args.persistence,
         amplitude=args.amplitude,
@@ -195,7 +195,7 @@ def make_perlin(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.perlin.Perlin(
+    noise = imggen.Perlin(
         unit=(1, *args.unit),
         min=args.min,
         max=args.max,
@@ -214,7 +214,7 @@ def make_unitnoise(args: ap.Namespace) -> imggen.ImgAry:
     :return: The noise as a :class:`numpy.ndarray`.
     :rtype: numpy.ndarray
     """
-    noise = imggen.unitnoise.UnitNoise(
+    noise = imggen.UnitNoise(
         unit=(1, *args.unit),
         min=args.min,
         max=args.max,
@@ -239,7 +239,7 @@ def make_worley(args: ap.Namespace) -> imggen.ImgAry:
     if vheight < 0:
         vheight = args.height
         
-    noise = imggen.worley.Worley(
+    noise = imggen.Worley(
         points=args.points,
         volume=(1, vheight, vwidth),
         origin=(0, *args.origin),
@@ -300,6 +300,7 @@ def parse_invocation() -> ap.ArgumentParser:
     return p.parse_args()
 
 
+# Create the subparser for each type of noise.
 def parse_coscurtains(spa: ap._SubParsersAction) -> None:
     """Parse arguments for coscurtains.
     
@@ -480,6 +481,10 @@ def parse_worley(spa: ap._SubParsersAction) -> None:
     sp.set_defaults(func=make_worley)
 
 
+# Create the arguments for the subparsers. Each subparser is tied to
+# one type of noise. Since many of the types of noise are subclasses
+# of each other, many of them have the same parameters. So, many of
+# the subparsers can share the same arguments.
 def add_noise_arguments(sp: ap.ArgumentParser) -> None:
     """Add noise arguments to a subparser.
     

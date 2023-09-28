@@ -13,6 +13,10 @@ from imggen import unitnoise as un
 from imggen.imggen import ImgAry, Loc, Size, X, Y, Z
 
 
+# Names available for import.
+__all__ = ['OctavePerlin', 'Perlin',]
+
+
 # Public class.
 class Perlin(un.UnitNoise):
     """A class to generate Perlin noise.

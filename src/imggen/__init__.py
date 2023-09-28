@@ -9,6 +9,6 @@ from imggen.imggen import ImgAry, Loc, Size, Source
 from imggen.maze import AnimatedMaze, Maze, SolvedMaze
 from imggen.noise import Noise
 from imggen.patterns import *
-from imggen.perlin import Perlin
+from imggen.perlin import OctavePerlin, Perlin
 from imggen.unitnoise import *
 from imggen.worley import OctaveWorley, Worley

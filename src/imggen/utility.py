@@ -5,11 +5,13 @@ utility
 Utility functions for imggen.
 """
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
+
+from imggen.imggen import ImgAry
 
 
 # Debugging utilities.
-def print_array(a: np.ndarray, depth: int = 0, color: bool = True) -> None:
+def print_array(a: NDArray, depth: int = 0, color: bool = True) -> None:
     """Write the values of the given array to stdout."""
     if len(a.shape) > 1:
         print(' ' * (4 * depth) + '[')
@@ -28,7 +30,7 @@ def print_array(a: np.ndarray, depth: int = 0, color: bool = True) -> None:
 
 
 # Interpolation utilities.
-def lerp(a: ArrayLike, b: ArrayLike, x: ArrayLike) -> np.ndarray:
+def lerp(a: ArrayLike, b: ArrayLike, x: ArrayLike) -> ImgAry:
     """Perform a linear interpolation on the values of two arrays
 
     :param a: The "left" values.

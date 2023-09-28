@@ -10,7 +10,7 @@ import numpy as np
 from numpy.random import default_rng
 from numpy.typing import NDArray
 
-from imggen.imggen import Source
+from imggen.imggen import ImgAry, Loc, Size, Source
 
 
 # Common types.
@@ -57,9 +57,9 @@ class Noise(Source):
 
     # Public methods.
     def fill(
-        self, size: Sequence[int],
-        loc: Sequence[int] = (0, 0, 0)
-    ) -> NDArray[np.float_]:
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
         """Fill a volume with image data.
 
         :param size: The size of the volume of image data to generate.

@@ -17,6 +17,8 @@ types-pillow = "*"
 isort = "*"
 tox = "*"
 imgwriter = {file = "../imgwriter"}
+sphinx = "*"
+furo = "*"
 imggen = {file = ".", editable = true}
 
 [requires]

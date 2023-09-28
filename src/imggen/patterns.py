@@ -27,7 +27,7 @@ class Box(Source):
     :param dimensions: The size of the box in three dimensions.
     :param color: The color of the box. This is a float within the
         range 0 <= x <= 1.
-    :return: A :class:Box object.
+    :return: A :class:`Box` object.
     :rtype: imggen.patterns.Box
     """
     def __init__(
@@ -70,7 +70,7 @@ class Gradient(Source):
         of numbers. It's parsed in pairs, with the first number being
         the position of the stop and the second being the color value
         of the stop.
-    :return: :class:Gradient object.
+    :return: :class:`Gradient` object.
     :rtype: imggen.patterns.Gradient
     """
     def __init__(
@@ -175,7 +175,7 @@ class Lines(Source):
     :param direction: (Optional.) This should be 'h' for a horizontal
         gradient or 'v' for a vertical gradient.
     :param length: (Optional.) The distance between each line.
-    :return: :class:Lines object.
+    :return: :class:`Lines` object.
     :rtype: imggen.patterns.Lines
     """
     def __init__(
@@ -220,7 +220,7 @@ class Rays(Source):
     :param count: The number of rays to generate.
     :param offset: (Optional.) Rotate the rays around the generation
         point. This is measured in radians.
-    :return: :class:Rays object.
+    :return: :class:`Rays` object.
     :rtype: imggen.patterns.Rays
     """
     def __init__(
@@ -292,7 +292,7 @@ class Rings(Source):
         there is only one ring.
     :param count: (Optional.) The number of rings to draw. The
         default is one.
-    :return: :class:Rings object.
+    :return: :class:`Rings` object.
     :rtype: imggen.patterns.Rings
     """
     def __init__(
@@ -351,7 +351,7 @@ class Solid(Source):
 
     :param color: The color to use for the fill. Zero is black. One
         is white. The values between are values of gray.
-    :return: :class:Solid object.
+    :return: :class:`Solid` object.
     :rtype: pjinoise.sources.Solid
     """
     def __init__(self, color: float) -> None:
@@ -383,7 +383,7 @@ class Spheres(Source):
         should be offset. Set to 'x' for rows to be offset. Set to
         'y' for columns to be offset. It defaults to None for no
         offset.
-    :return: :class:Spheres object.
+    :return: :class:`Spheres` object.
     :rtype: imggen.patterns.Spheres
     """
     def __init__(
@@ -460,7 +460,7 @@ class Spot(Source):
     """Fill a space with a spot.
 
     :param radius: The radius of the spot.
-    :return: :class:Spot object.
+    :return: :class:`Spot` object.
     :rtype: imggen.patterns.Spot
     """
     def __init__(self, radius: float, *args, **kwargs) -> None:
@@ -498,7 +498,36 @@ class Spot(Source):
 
 
 class Text(Source):
-    """Place text within the image."""
+    """Place text within the image.
+    
+    :param text: The text to add.
+    :param font: (Optional.) The font for the text. It uses the fonts
+        available to your system.
+    :param size: (Optional.) The size of the text in points.
+    :param face: (Optional.) The index number of the face of the font. See
+        :meth:`PIL.ImageFont.truetype`.
+    :param encoding: (Optional.) The encoding for the font. See
+        :meth:`PIL.ImageFont.truetype`.
+    :param layout_engine: (Optional.) The layout engine for the font. See
+        :meth:`PIL.ImageFont.truetype`.
+    :param origin: (Optional.) The starting position for the test.
+    :param start: (Optional.) The number of blank frames before the text
+        appears in video.
+    :param duration: (Optional.) The number of frames the texts is visible
+        in video.
+    :param fill_color: (Optional.) The brightness of the text.
+    :param bg_color: (Optional.) The color of the background behind the
+        text.
+    :param spacing: (Optional.) The number of pixels between lines of text.
+        Basically the leading minus the size.
+    :param spacing: (Optional.) How to automatically calculate the spacing.
+    :param align: (Optional.) The horizontal alignment of the text.
+    :param stroke_width: (Optional.) The width of the stroke around the
+        characters.
+    :param stroke_color: (Optional.) The color to use for the stroke.
+    :return: A :class:`Text` object.
+    :rtype: imggen.patterns.Text
+    """
     def __init__(
         self, text: str,
         font: str = 'Verdana',
@@ -607,7 +636,7 @@ class Waves(Source):
         string 'geometric'. Determines whether the distance between
         each circle remains constant (linear) or increases
         (geometric). Defaults to linear.
-    :returns: :class:Waves object.
+    :returns: :class:`Waves` object.
     :rtype: imggen.patterns.Waves
     """
     def __init__(
