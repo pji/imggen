@@ -93,6 +93,24 @@ class TestNoisy:
         ])
         compare_files(actual, expected)
 
+    def test_maze(self, tmp_path):
+        """When maze is invoked, `noisy.py` should write unit
+        noise to the given file.
+        """
+        fname = '__test_noisy_maze.jpg'
+        expected = f'tests/data/{fname}'
+        actual = tmp_path / fname
+
+        run([
+            'python',
+            'examples/noisy.py',
+            'maze',
+            '-s', 'spam',
+            '640', '480',
+            actual
+        ])
+        compare_files(actual, expected)
+
     def test_ocurtains(self, tmp_path):
         """When ocurtains is invoked, `noisy.py` should write octave
         one-dimensional unit noise (curtains) to the given file.

@@ -22,6 +22,12 @@ def build_noisy():
     a = noise.fill((1, 480, 640))
     iw.write('tests/data/__test_noisy_coscurtains.jpg', a)
 
+    noise = ig.maze.Maze(
+        unit=(1, 20, 20), seed='spam', repeats=1
+    )
+    a = noise.fill((1, 480, 640))
+    iw.write('tests/data/__test_noisy_maze.jpg', a)
+
     noise = ig.noise.Noise(seed='spam')
     a = noise.fill((1, 480, 640))
     iw.write('tests/data/__test_noisy_noise.jpg', a)

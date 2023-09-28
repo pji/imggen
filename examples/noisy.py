@@ -55,6 +55,28 @@ def make_curtains(args: ap.Namespace) -> imggen.ImgAry:
     return noise.fill(size, loc)
 
 
+def make_maze(args: ap.Namespace) -> imggen.ImgAry:
+    """Generate a maze.
+    
+    :param args: The arguments passed from the command line.
+    :return: The noise as a :class:`numpy.ndarray`.
+    :rtype: numpy.ndarray
+    """
+    noise = imggen.Maze(
+        unit=(1, *args.unit),
+        width=args.path_width,
+        inset=(0, *args.inset),
+        origin=args.origin,
+        min=args.min,
+        max=args.max,
+        repeats=args.repeats,
+        seed=args.seed
+    )
+    size = (1, args.height, args.width)
+    loc = (0, *args.location)
+    return noise.fill(size, loc)
+
+
 def make_noise(args: ap.Namespace) -> imggen.ImgAry:
     """Generate random pixel value noise.
     
@@ -260,6 +282,7 @@ def parse_invocation() -> ap.ArgumentParser:
     spa = p.add_subparsers(help='The type of noise.', required=True)
     parse_coscurtains(spa)
     parse_curtains(spa)
+    parse_maze(spa)
     parse_noise(spa)
     parse_ocoscurtains(spa)
     parse_ocurtains(spa)
@@ -331,6 +354,22 @@ def parse_curtains(spa: ap._SubParsersAction) -> None:
     add_unitnoise_arguments(sp)
     add_noise_arguments(sp)
     sp.set_defaults(func=make_curtains)
+
+
+def parse_maze(spa: ap._SubParsersAction) -> None:
+    """Parse arguments for mazes.
+    
+    :param spa: The subparser.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp = spa.add_parser(
+        'maze',
+        description='Generate a maze.'
+    )
+    add_maze_arguments(sp)
+    add_noise_arguments(sp)
+    sp.set_defaults(func=make_maze)
 
 
 def parse_noise(spa: ap._SubParsersAction) -> None:
@@ -485,6 +524,70 @@ def parse_worley(spa: ap._SubParsersAction) -> None:
 # one type of noise. Since many of the types of noise are subclasses
 # of each other, many of them have the same parameters. So, many of
 # the subparsers can share the same arguments.
+def add_maze_arguments(sp: ap.ArgumentParser) -> None:
+    """Add maze arguments to a subparser. This has to cover the unit
+    noise arguments too, since :class:`imggen.Maze` needs a different
+    default value for :attr:`imggen.UnitNoise.unit`.
+    
+    :param sp: A subparser that accepts noise arguments.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp.add_argument(
+        '-u', '--unit',
+        action='store',
+        default=(20, 20),
+        help='The size of a unit within the noise.',
+        nargs=2,
+        type=int
+    )
+    sp.add_argument(
+        '-w', '--path_width',
+        action='store',
+        default=0.2,
+        help=(
+            'The width of the paths in the maze as a proportion of the'
+            'width of the fill.'
+        ),
+        type=int
+    )
+    sp.add_argument(
+        '-i', '--inset',
+        action='store',
+        default=(1, 1),
+        help='The depth of the wall on the top and left sides.',
+        type=int
+    )
+    sp.add_argument(
+        '-o', '--origin',
+        action='store',
+        default='tl',
+        help='The location to start drawing the path.',
+        type=str
+    )
+    sp.add_argument(
+        '-m', '--min',
+        action='store',
+        default=0x00,
+        help='The minimum brightness of the noise.',
+        type=int
+    )
+    sp.add_argument(
+        '-M', '--max',
+        action='store',
+        default=0xff,
+        help='The maximum brightness of the noise.',
+        type=int
+    )
+    sp.add_argument(
+        '-r', '--repeats',
+        action='store',
+        default=1,
+        help='The how often the values can be repeated within the noise.',
+        type=int
+    )
+
+
 def add_noise_arguments(sp: ap.ArgumentParser) -> None:
     """Add noise arguments to a subparser.
     
