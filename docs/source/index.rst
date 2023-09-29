@@ -15,6 +15,7 @@ put it another way: it makes pretty pictures.
    
    self
    /api.rst
+   /example.rst
    /requirements.rst
 
 

@@ -4,6 +4,7 @@ build_doc_images
 
 Build the example images used in the documentation for :mod:`imggen`.
 """
+from argparse import ArgumentParser
 from pathlib import Path
 
 import imggen as ig
@@ -164,7 +165,28 @@ def save(src: ig.Source, size: ig.Size, path: Path, ext: str = 'jpg') -> None:
 
 # Mainline.
 if __name__ == '__main__':
-    size = (1, 720, 1280)
-    path = Path('docs/source/images')
+    p = ArgumentParser(
+        description='Generate images for the documentation for imggen.',
+        prog='imggen'
+    )
+    p.add_argument(
+        '--outdir', '-o',
+        action='store',
+        default=Path('docs/source/images'),
+        help='The directory to save the images.',
+        type=Path
+    )
+    p.add_argument(
+        '--size', '-s',
+        action='store',
+        default=(1280, 720),
+        help='The height and width dimensions of the images.',
+        nargs=2,
+        type=int
+    )
+    args = p.parse_args()
+    
+    size = (1, args.size[1], args.size[0])
+    path = args.outdir
     make_patterns(size, path)
     make_random(size, path)

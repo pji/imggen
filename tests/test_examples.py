@@ -4,6 +4,7 @@ test_examples
 
 Unit tests for the example scripts for :mod:`imggen`.
 """
+from pathlib import Path
 from subprocess import run
 
 
@@ -18,6 +19,47 @@ def compare_files(a, b):
 
 
 # Test cases.
+class TestBuildDocImages:
+    def test_p(self, tmp_path):
+        """When invoked with `-o`, `build_doc_images` should write
+        the documentation example images to the given directory.
+        """
+        exp_dir = Path('docs/source/images')
+        fnames = [
+            'animatedmaze.mp4',
+            'box.jpg',
+            'cosinecurtains.jpg',
+            'curtains.jpg',
+            'gradient.jpg',
+            'lines.jpg',
+            'maze.jpg',
+            'noise.jpg',
+            'octavecosinecurtains.jpg',
+            'octavecurtains.jpg',
+            'octaveperlin.jpg',
+            'octaveunitnoise.jpg',
+            'octaveworley.jpg',
+            'perlin.jpg',
+            'rays.jpg',
+            'rings.jpg',
+            'solid.jpg',
+            'solvedmaze.jpg',
+            'spheres.jpg',
+            'spot.jpg',
+            'text.jpg',
+            'unitnoise.jpg',
+            'waves.jpg',
+            'worley.jpg',
+        ]
+        run([
+            'python',
+            'examples/build_doc_images.py',
+            '-o', str(tmp_path),
+        ])
+        for fname in fnames:
+            compare_files(tmp_path / fname, exp_dir / fname)
+
+
 class TestNoisy:
     def test_coscurtains(self, tmp_path):
         """When coscurtains is invoked, `noisy.py` should write one-
