@@ -19,6 +19,8 @@ tox = "*"
 imgwriter = {file = "../imgwriter"}
 sphinx = "*"
 furo = "*"
+build = "*"
+twine = "*"
 imggen = {file = ".", editable = true}
 
 [requires]
