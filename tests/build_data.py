@@ -4,8 +4,9 @@ build_data
 
 Build the expected data files for the example tests.
 """
-import imggen as ig
 import imgwriter as iw
+
+import imggen as ig
 
 
 def build_noisy():

@@ -4,8 +4,8 @@ test_worley
 
 Unit tests for the imggen.worley module.
 """
-import pytest as pt
 import numpy as np
+import pytest as pt
 
 import imggen.worley as w
 from tests.common import mkhex
