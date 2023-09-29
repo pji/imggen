@@ -23,6 +23,12 @@ class Noise(Source):
     seed value to allow the noise to be regenerated in a predictable
     way.
 
+    .. figure:: images/noise.jpg
+       :alt: A picture of an image created from the output of
+            :class:`UnitNoise`.
+       
+       Output of :class:`UnitNoise`.
+    
     :param seed: (Optional.) An int, bytes, or string used to seed
         therandom number generator used to generate the image data.
         If no value is passed, the RNG will not be seeded, so

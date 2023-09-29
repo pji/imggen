@@ -27,6 +27,12 @@ class Worley(Noise):
     image. This creates structures within the noise that look like
     cells or pits.
 
+    .. figure:: images/worley.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Worley`.
+       
+       Output of :class:`Worley`.
+    
     This implementation is heavily optimized from code found here:
     https://code.activestate.com/recipes/578459-worley-noise-generator/
 
@@ -47,7 +53,7 @@ class Worley(Noise):
         same values. Note: strings that are passed to seed will
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
-    :return: :class:Worley object.
+    :return: :class:`Worley` object.
     :rtype: imggen.worley.Worley
     """
     def __init__(
@@ -116,6 +122,12 @@ class OctaveWorley(Source):
     This implementation is heavily optimized from code found here:
     https://code.activestate.com/recipes/578459-worley-noise-generator/
 
+    .. figure:: images/octaveworley.jpg
+       :alt: A picture of an image created from the output of
+            :class:`OctaveWorley`.
+       
+       Output of :class:`OctaveWorley`.
+    
     :param octaves: The number of octaves of noise in the image. An
         octave is a layer of the noise with a different number of
         points added on top of other layers of noise.
@@ -139,8 +151,8 @@ class OctaveWorley(Source):
         same values. Note: strings that are passed to seed will
         be converted to UTF-8 bytes before being converted to
         integers for seeding.
-    :return: :class:Worley object.
-    :rtype: imggen.worley.Worley
+    :return: :class:`OctaveWorley` object.
+    :rtype: imggen.worley.OctaveWorley
     """
     def __init__(
         self, octaves: int = 4,

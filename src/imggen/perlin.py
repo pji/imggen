@@ -21,6 +21,12 @@ __all__ = ['OctavePerlin', 'Perlin',]
 class Perlin(un.UnitNoise):
     """A class to generate Perlin noise.
 
+    .. figure:: images/perlin.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Perlin`.
+       
+       Output of :class:`Perlin`.
+
     :param unit: The number of pixels between vertices along an
         axis on the unit grid. The vertices are the locations where
         colors for the gradient are set. This is involved in setting

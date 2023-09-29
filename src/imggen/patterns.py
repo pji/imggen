@@ -22,6 +22,11 @@ __all__ = [
 # Public classes.
 class Box(Source):
     """Draw a box.
+    
+    .. figure:: images/box.jpg
+       :alt: A picture of an image created from the output of :class:`Box`.
+       
+       Output of :class:`Box`.
 
     :param origin: The location of the upper left corner of the box.
     :param dimensions: The size of the box in three dimensions.
@@ -62,6 +67,12 @@ class Box(Source):
 
 class Gradient(Source):
     """Generate a simple gradient.
+
+    .. figure:: images/gradient.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Gradient`.
+       
+       Output of :class:`Gradient`.
 
     :param direction: (Optional.) This should be 'h' for a horizontal
         gradient or 'v' for a vertical gradient.
@@ -172,6 +183,12 @@ class Gradient(Source):
 class Lines(Source):
     """Generate simple lines.
 
+    .. figure:: images/lines.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Lines`.
+       
+       Output of :class:`Lines`.
+
     :param direction: (Optional.) This should be 'h' for a horizontal
         gradient or 'v' for a vertical gradient.
     :param length: (Optional.) The distance between each line.
@@ -216,6 +233,12 @@ class Lines(Source):
 
 class Rays(Source):
     """Create rays that generate from a central point.
+
+    .. figure:: images/rays.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Rays`.
+       
+       Output of :class:`Rays`.
 
     :param count: The number of rays to generate.
     :param offset: (Optional.) Rotate the rays around the generation
@@ -279,6 +302,12 @@ class Rays(Source):
 
 class Rings(Source):
     """Create a series of concentric circles.
+
+    .. figure:: images/rings.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Rings`.
+       
+       Output of :class:`Rings`.
 
     :param radius: The radius of the first ring, which is the ring
         closest to the center. It is measured from the origin point
@@ -349,6 +378,12 @@ class Rings(Source):
 class Solid(Source):
     """Fill a space with a solid color.
 
+    .. figure:: images/solid.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Solid`.
+       
+       Output of :class:`Solid`.
+
     :param color: The color to use for the fill. Zero is black. One
         is white. The values between are values of gray.
     :return: :class:`Solid` object.
@@ -377,6 +412,12 @@ class Solid(Source):
 
 class Spheres(Source):
     """Fill a space with a series of spots.
+
+    .. figure:: images/spheres.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Spheres`.
+       
+       Output of :class:`Spheres`.
 
     :param radius: The radius of an individual spot.
     :param offset: (Optional.) Whether alternating rows or columns
@@ -459,6 +500,12 @@ class Spheres(Source):
 class Spot(Source):
     """Fill a space with a spot.
 
+    .. figure:: images/spot.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Spot`.
+       
+       Output of :class:`Spot`.
+
     :param radius: The radius of the spot.
     :return: :class:`Spot` object.
     :rtype: imggen.patterns.Spot
@@ -500,6 +547,12 @@ class Spot(Source):
 class Text(Source):
     """Place text within the image.
     
+    .. figure:: images/text.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Text`.
+       
+       Output of :class:`Text`.
+
     :param text: The text to add.
     :param font: (Optional.) The font for the text. It uses the fonts
         available to your system.
@@ -630,6 +683,12 @@ class Text(Source):
 
 class Waves(Source):
     """Generates concentric circles.
+
+    .. figure:: images/waves.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Waves`.
+       
+       Output of :class:`Waves`.
 
     :param length: The radius of the innermost circle.
     :param growth: (Optional.) Either the string 'linear' or the

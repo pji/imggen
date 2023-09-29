@@ -24,7 +24,13 @@ __all__ = [
 # Public classes.
 class UnitNoise(Noise):
     """Create image noise that is based on a unit grid.
-
+    
+    .. figure:: images/unitnoise.jpg
+       :alt: A picture of an image created from the output of
+            :class:`UnitNoise`.
+       
+       Output of :class:`UnitNoise`.
+    
     :param unit: The number of pixels between vertices along an
         axis on the unit grid. The vertices are the locations where
         colors for the gradient are set. This is involved in setting
@@ -186,6 +192,12 @@ class UnitNoise(Noise):
 class Curtains(UnitNoise):
     """Unit noise that creates vertical lines, like curtains.
     
+    .. figure:: images/curtains.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Curtains`.
+       
+       Output of :class:`Curtains`.
+
     :param unit: The number of pixels between vertices along an
         axis on the unit grid. The vertices are the locations where
         colors for the gradient are set. This is involved in setting
@@ -230,6 +242,12 @@ class CosineCurtains(Curtains):
     on the color change between grid points, making them appear to
     flow more like curtains.
     
+    .. figure:: images/cosinecurtains.jpg
+       :alt: A picture of an image created from the output of
+            :class:`CosineCurtains`.
+       
+       Output of :class:`CosineCurtains`.
+
     :param unit: The number of pixels between vertices along an
         axis on the unit grid. The vertices are the locations where
         colors for the gradient are set. This is involved in setting
@@ -324,6 +342,13 @@ def octave_noise_factory(
         """A source for octave noise. Parameters are similar to the
         :class:`UnitNoise` being octaved, with the following additions.
         
+        .. figure:: images/octave{lname}.jpg
+           :alt: A picture of an image created from the output of
+                :class:`{name}`.
+       
+           Output of :class:`{name}`.
+    
+        
         :param octaves: The number of octaves of noise in the image. An
             octave is a layer of the noise with a different number of
             points added on top of other layers of noise.
@@ -380,6 +405,11 @@ def octave_noise_factory(
 
     cls = OctaveNoise
     cls.source = source
+    if cls.__doc__ is not None:
+        cls.__doc__ = cls.__doc__.format(
+            lname=source.__name__.lower(), name=source.__name__
+        )
+    cls.__name__ = 'Octave' + source.__name__
     return cls
 
 

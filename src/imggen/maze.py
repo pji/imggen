@@ -24,6 +24,12 @@ MazePath = list[Step]
 class Maze(un.UnitNoise):
     """A class to generate maze-like paths.
 
+    .. figure:: images/maze.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Maze`.
+       
+       Output of :class:`Maze`.
+    
     :param unit: The number of pixels between vertices along an
         axis. The vertices are the locations where the direction
         of the path can change.
@@ -443,6 +449,12 @@ class SolvedMaze(Maze):
     """Draw a line that shows how to get from one location to another
     in a maze.
 
+    .. figure:: images/solvedmaze.jpg
+       :alt: A picture of an image created from the output of
+            :class:`SolvedMaze`.
+       
+       Output of :class:`SolvedMaze`.
+    
     :param unit: The number of pixels between vertices along an
         axis. The vertices are the locations where the direction
         of the path can change.
