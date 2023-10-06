@@ -77,6 +77,14 @@ def make_random(size: ig.Size, path: Path) -> None:
             unit=unit,
             seed='spam'
         ),
+        ig.BorktaveCosineCurtains(
+            unit=unit,
+            octaves=3,
+            persistence=-4,
+            amplitude=24,
+            frequency=4,
+            seed='spam'
+        ),
         ig.Curtains(
             unit=unit,
             seed='spam'

@@ -4,6 +4,8 @@ test_unitnoise
 
 Unit tests for the imggen.unitnoise module.
 """
+import operator as op
+
 import numpy as np
 import pytest as pt
 
@@ -443,6 +445,15 @@ class TestOctaveNoiseFactory:
         """
         cls = un.octave_noise_factory(un.UnitNoise, un.OctaveNoiseDefaults())
         assert cls.source == un.UnitNoise
+
+    def test_result_can_be_borked(self):
+        """When told to bork the subclass, the returned subclass should
+        have :attr:`OctaveNoise.unit_op` set to :func:`operator.mul`.
+        """
+        cls = un.octave_noise_factory(
+            un.UnitNoise, un.OctaveNoiseDefaults(), bork=True
+        )
+        assert cls.unit_op == op.mul
 
     def test_set_attr_defaults(self):
         """Created subclasses of :class:`OctaveNoise` should set the octave

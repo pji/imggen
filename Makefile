@@ -34,7 +34,6 @@ docs:
 
 .PHONY: pre
 pre:
-	python -m pipenv install --dev -e .
 	python precommit.py
 	git status
 

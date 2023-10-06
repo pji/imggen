@@ -4,7 +4,8 @@ unitnoise
 
 Image data sources that create unit noise.
 """
-from typing import NamedTuple, Sequence, Union
+from operator import mul, truediv
+from typing import Callable, NamedTuple, Sequence, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -16,8 +17,9 @@ from imggen.utility import lerp
 
 # Names available for import.
 __all__ = [
-    'CosineCurtains', 'Curtains', 'OctaveCosineCurtains', 'OctaveCurtains',
-    'OctaveUnitNoise', 'UnitNoise',
+    'BorktaveCosineCurtains', 'CosineCurtains', 'Curtains',
+    'OctaveCosineCurtains', 'OctaveCurtains', 'OctaveUnitNoise',
+    'UnitNoise',
 ]
 
 
@@ -59,7 +61,7 @@ class UnitNoise(Noise):
     _axes: int = 3
 
     def __init__(
-        self, unit: Sequence[int],
+        self, unit: Sequence[float],
         min: int = 0x00,
         max: int = 0xff,
         repeats: int = 0,
@@ -313,7 +315,8 @@ class OctaveNoiseDefaults(NamedTuple):
 
 def octave_noise_factory(
     source: type[UnitNoise],
-    defaults: OctaveNoiseDefaults
+    defaults: OctaveNoiseDefaults,
+    bork: bool = False
 ) -> type:
     """A class factory that generates octave versions of the subclasses
     of :class:`UnitNoise`.
@@ -335,6 +338,11 @@ def octave_noise_factory(
         the octave noise.
     :param defaults: The default values for the parameters of the class
         being created.
+    :param bork: This changes the operator used to calculate the new
+        unit sizes each octave from division to multiplication. This
+        was a bug in earlier versions of this code that had some
+        interesting effects. So, while the behavior is fixed by default,
+        this allows you to revert to the older, broken behavior.
     :return: A subclass of :class:`UnitNoise`.
     :rtype: type
     """
@@ -342,7 +350,7 @@ def octave_noise_factory(
         """A source for octave noise. Parameters are similar to the
         :class:`UnitNoise` being octaved, with the following additions.
         
-        .. figure:: images/octave{lname}.jpg
+        .. figure:: images/{lname}.jpg
            :alt: A picture of an image created from the output of
                 :class:`{name}`.
        
@@ -359,13 +367,14 @@ def octave_noise_factory(
         :rtype: imggen.imggen.Source
         """
         source: type[UnitNoise]
+        unit_op: Callable[[float, float], float] = truediv
 
         def __init__(
             self, octaves: int = defaults.octaves,
             persistence: float = defaults.persistence,
             amplitude: float = defaults.amplitude,
             frequency: float = defaults.frequency,
-            unit: Sequence[int] = defaults.unit,
+            unit: Sequence[float] = defaults.unit,
             min: int = defaults.min,
             max: int = defaults.max,
             repeats: int = defaults.repeats,
@@ -390,9 +399,9 @@ def octave_noise_factory(
             for i in range(self.octaves):
                 amp = self.amplitude + (self.persistence * i)
                 freq = self.frequency * 2 ** i
-                unit = [n / freq for n in self.unit]
+                unit = [self.unit_op(n, freq) for n in self.unit]
                 octave = self.source(
-                    unit=tuple(unit),
+                    unit=unit,
                     min=self.min,
                     max=self.max,
                     repeats=self.repeats,
@@ -405,11 +414,32 @@ def octave_noise_factory(
 
     cls = OctaveNoise
     cls.source = source
-    if cls.__doc__ is not None:
-        cls.__doc__ = cls.__doc__.format(
-            lname=source.__name__.lower(), name=source.__name__
-        )
-    cls.__name__ = 'Octave' + source.__name__
+    if not bork:
+        cls.__name__ = 'Octave' + source.__name__
+        if cls.__doc__ is not None:
+            cls.__doc__ = cls.__doc__.format(
+                lname='octave' + source.__name__.lower(),
+                name='Octave' + source.__name__
+            )
+    else:
+        cls.unit_op = mul
+        cls.__name__ = 'Borktave' + source.__name__
+        if cls.__doc__ is not None:
+            cls.__doc__ = cls.__doc__.format(
+                lname='borktave' + source.__name__.lower(),
+                name='Borktave' + source.__name__
+            )
+            cls.__doc__ += '\n'.join((
+                '',
+                '.. warning::',
+                '   This octave class is borked. That means the operation',
+                '   used to calculate the unit size for each octave',
+                '   multiplies by the frequency rather than divides. This',
+                '   reproduces a bug in earlier versions of this code which',
+                '   caused some interesting behavior. It generates output',
+                '   just fine. It just won\'t be the same output generated',
+                '   with the real octave algorithm.'
+            ))
     return cls
 
 
@@ -418,3 +448,4 @@ defaults = OctaveNoiseDefaults()
 OctaveCosineCurtains = octave_noise_factory(CosineCurtains, defaults)
 OctaveCurtains = octave_noise_factory(Curtains, defaults)
 OctaveUnitNoise = octave_noise_factory(UnitNoise, defaults)
+BorktaveCosineCurtains = octave_noise_factory(CosineCurtains, defaults, True)

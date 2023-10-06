@@ -88,6 +88,7 @@ layers of unit noise.
 .. autofunction:: imggen.OctaveCurtains
 .. autofunction:: imggen.OctavePerlin
 .. autofunction:: imggen.OctaveUnitNoise
+.. autofunction:: imggen.BorktaveCosineCurtains
 
 
 Worley Noise
