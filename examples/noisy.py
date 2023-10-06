@@ -272,6 +272,20 @@ def make_worley(args: ap.Namespace) -> imggen.ImgAry:
     return noise.fill(size, loc)
 
 
+# Pattern generators.
+def make_spheres(args: ap.Namespace) -> imggen.ImgAry:
+    """Generate spheres.
+    
+    :param args: The arguments passed from the command line.
+    :return: The noise as a :class:`numpy.ndarray`.
+    :rtype: numpy.ndarray
+    """
+    noise = imggen.Spheres(radius=args.radius, offset=args.offset)
+    size = (1, args.height, args.width)
+    loc = (0, *args.location)
+    return noise.fill(size, loc)
+
+
 # Command line interface.
 def parse_invocation() -> ap.ArgumentParser:
     """Build a CLI parser."""
@@ -280,6 +294,8 @@ def parse_invocation() -> ap.ArgumentParser:
         prog='noisy'
     )
     spa = p.add_subparsers(help='The type of noise.', required=True)
+    
+    # Noise
     parse_coscurtains(spa)
     parse_curtains(spa)
     parse_maze(spa)
@@ -292,6 +308,9 @@ def parse_invocation() -> ap.ArgumentParser:
     parse_perlin(spa)
     parse_unitnoise(spa)
     parse_worley(spa)
+    
+    # Patterns
+    parse_spheres(spa)
     
     p.add_argument(
         'width',
@@ -518,6 +537,35 @@ def parse_worley(spa: ap._SubParsersAction) -> None:
     add_worley_arguments(sp)
     add_noise_arguments(sp)
     sp.set_defaults(func=make_worley)
+
+
+# Create the subparser for each type of pattern.
+def parse_spheres(spa: ap._SubParsersAction) -> None:
+    """Parser for spheres.
+    
+    :param spa: The subparser.
+    :return: None.
+    :rtype: NoneType
+    """
+    sp = spa.add_parser(
+        'spheres',
+        description='Generate spheres.'
+    )
+    sp.add_argument(
+        '-F', '--offset',
+        action='store',
+        default='',
+        help='The axis to offset.',
+        type=str
+    )
+    sp.add_argument(
+        '-r', '--radius',
+        action='store',
+        default=50.0,
+        help='The radius of each sphere.',
+        type=float
+    )
+    sp.set_defaults(func=make_spheres)
 
 
 # Create the arguments for the subparsers. Each subparser is tied to

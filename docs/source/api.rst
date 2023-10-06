@@ -23,6 +23,7 @@ patterns of image data.
 
 .. autofunction:: imggen.Box
 .. autofunction:: imggen.Gradient
+.. autofunction:: imggen.Hexes
 .. autofunction:: imggen.Lines
 .. autofunction:: imggen.Rays
 .. autofunction:: imggen.Rings

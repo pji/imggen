@@ -34,6 +34,7 @@ def make_patterns(size: ig.Size, path: Path) -> None:
                 0.9, 0.0
             )
         ),
+        ig.patterns.Hexes(radius=size[Y] // 8),
         ig.Lines(
             direction='v',
             length=(size[X] / 8) - (size[X] / 64)

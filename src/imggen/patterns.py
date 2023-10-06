@@ -4,6 +4,7 @@ patterns
 
 mage data sources for the imggen module that create non-random patterns.
 """
+from math import sqrt
 from typing import Literal, Optional, Sequence
 
 import numpy as np
@@ -14,8 +15,8 @@ from imggen.imggen import ImgAry, Loc, Size, Source, X, Y, Z
 
 # Names available for import.
 __all__ = [
-    'Box', 'Gradient', 'Lines', 'Rays', 'Rings', 'Solid', 'Spheres',
-    'Spot', 'Text', 'Waves',
+    'Box', 'Gradient', 'Hexes', 'Lines', 'Rays', 'Rings', 'Solid',
+    'Spheres', 'Spot', 'Text', 'Waves',
 ]
 
 
@@ -177,6 +178,86 @@ class Gradient(Source):
         elif self.direction == 't':
             a = a.reshape(a_size, 1, 1)
             a = np.tile(a, (1, size[Y], size[X]))
+        return a
+
+
+class Hexes(Source):
+    """Fill a space with hexagonal cells.
+    
+    .. figure:: images/hexes.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Gradient`.
+       
+       Output of :class:`Hexes`.
+
+    :param radius: The distance from the center of a cell to the center
+        of each of the sides of the cell.
+    :param cells: (Optional.) Whether the color of a pixel is based
+        only on the distance to the nearest center point or if it
+        is set to black if it's further away than the radius. When
+        true, :class:`Hexes` will produce square cell-like structures
+        rather than spheres.
+    :param round: (Optional.) Whether to apply a circular easing
+        function to output to give the appearance of the exterior
+        of a sphere.
+    :return: A :class:`imggen.Hexes` object.
+    :rtype: imggen.patterns.Hexes
+    """
+    def __init__(
+        self, radius: int,
+        cells: bool = True,
+        round: bool = False
+    ) -> None:
+        self.cells = cells
+        self.radius = radius
+        self.round = round
+    
+    # Public methods.
+    def fill(
+        self, size: Sequence[int],
+        loc: Sequence[int] = (0, 0, 0)
+    ) -> ImgAry:
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
+        # Place the centers of the hexagons.
+        seeds = []
+        x, y, row = 0.0, 0.0, 0.0
+        xstep: float = self.radius
+        ystep: float = sqrt(xstep ** 2 - (xstep / 2) ** 2)
+        while y <= size[Y] + ystep:
+            while x <= size[X] + xstep:
+                seeds.append((y, x))
+                x += xstep
+            y += ystep
+            row += 1
+            x = 0
+            if row % 2:
+                x += xstep / 2
+        
+        # Map the distances to the points.
+        indices = np.indices(size[1:])
+        max_dist = np.sqrt(sum(n ** 2 for n in size))
+        dist = np.zeros(size[1:], dtype=float)
+        dist.fill(max_dist)
+        for seed in seeds:
+            axis_dist = [p - i for p, i in zip(seed, indices)]
+            work = np.sqrt(sum(d ** 2 for d in axis_dist))
+            dist[work < dist] = work[work < dist]
+        act_max_dist = np.max(dist)
+        a = dist / act_max_dist
+        a = np.tile(a, (size[Z], 1, 1))
+        if not self.cells:
+            a[a > self.radius] = self.radius
+        if self.round:
+            a = np.sqrt(1 - a ** 2)
+        else:
+            a = 1 - a
         return a
 
 
@@ -424,15 +505,27 @@ class Spheres(Source):
         should be offset. Set to 'x' for rows to be offset. Set to
         'y' for columns to be offset. It defaults to None for no
         offset.
+    :param cells: (Optional.) Whether the color of a pixel is based
+        only on the distance to the nearest center point or if it
+        is set to black if it's further away than the radius. When
+        true, :class:`Spheres` will produce square cell-like structures
+        rather than spheres.
+    :param round: (Optional.) Whether to apply a circular easing
+        function to output to give the appearance of the exterior
+        of a sphere.
     :return: :class:`Spheres` object.
     :rtype: imggen.patterns.Spheres
     """
     def __init__(
         self, radius: float,
-        offset: str = ''
+        offset: str = '',
+        cells: bool = False,
+        round: bool = True
     ) -> None:
-        self.radius = float(radius)
+        self.cells = cells
         self.offset = offset
+        self.radius = float(radius)
+        self.round = round
 
     # Public methods.
     def fill(
@@ -493,7 +586,15 @@ class Spheres(Source):
         # to generate the regularly spaced spheres in the volume.
         # Then run the easing function on those spheres.
         a = np.sqrt(a[X] ** 2 + a[Y] ** 2 + a[Z] ** 2)
-        a = 1 - (a / np.sqrt(3 * self.radius ** 2))
+        if self.cells:
+            a = (a / np.sqrt(3 * self.radius ** 2))
+        else:
+            a[a > self.radius] = self.radius
+            a /= self.radius
+        if self.round:
+            a = np.sqrt(1 - a ** 2)
+        else:
+            a = 1 - a
         return a
 
 

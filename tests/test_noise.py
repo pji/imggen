@@ -7,7 +7,6 @@ Unit tests for the imggen.noise module.
 import numpy as np
 
 from imggen import noise as n
-from tests.common import SourceTestCase
 
 
 # Test fpr initialization.

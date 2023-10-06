@@ -137,6 +137,66 @@ class TestGradient:
         ], dtype=np.uint8)).any()
 
 
+class TestHexes:
+    # Tests for initialization.
+    def test_init_all_default(self):
+        """Given only required parameters, :class:`Hexes` should
+        initialize the required attributes with the given values.
+        It should then initialize the optional attributes with
+        default values.
+        """
+        required = {
+            'radius': 2.0,
+        }
+        optional = {
+            'cells': True,
+            'round': False,
+        }
+        obj = p.Hexes(**required)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    def test_init_all_optional(self):
+        """Given optional parameters, :class:`Hexes` should
+        initialize the given attributes with the given values.
+        """
+        required = {
+            'radius': 2.0,
+        }
+        optional = {
+            'cells': False,
+            'round': True,
+        }
+        obj = p.Hexes(**required, **optional)
+        for attr in required:
+            assert getattr(obj, attr) == required[attr]
+        for attr in optional:
+            assert getattr(obj, attr) == optional[attr]
+
+    # Tests for fill.
+    def test_fill(self):
+        """Given the shape of the output, :meth:`Hexes.fill`
+        should return a volume filled with hexagons of the
+        given radius.
+        """
+        obj = p.Hexes(radius=5)
+        result = obj.fill((1, 8, 8))
+        assert (mkhex(result) == np.array([
+            [
+                [0xff, 0xa4, 0x4a, 0x4a, 0xa4, 0xff, 0xa4, 0x4a],
+                [0xa4, 0x7f, 0x35, 0x35, 0x7f, 0xa4, 0x7f, 0x35],
+                [0x4a, 0x35, 0x28, 0x28, 0x35, 0x4a, 0x35, 0x28],
+                [0x00, 0x4a, 0x7f, 0x7f, 0x4a, 0x00, 0x4a, 0x7f],
+                [0x1b, 0x74, 0xc9, 0xc9, 0x74, 0x1b, 0x74, 0xc9],
+                [0x15, 0x6b, 0xb3, 0xb3, 0x6b, 0x15, 0x6b, 0xb3],
+                [0x0f, 0x34, 0x62, 0x62, 0x34, 0x0f, 0x34, 0x62],
+                [0x69, 0x50, 0x14, 0x14, 0x50, 0x69, 0x50, 0x14],
+            ],
+        ], dtype=np.uint8)).any()
+
+
 class TestLines:
     # Tests for initialization.
     def test_init_all_default(self):
@@ -360,6 +420,8 @@ class TestSpheres:
         }
         optional = {
             'offset': '',
+            'cells': False,
+            'round': True,
         }
         obj = p.Spheres(**required)
         for attr in required:
@@ -376,6 +438,8 @@ class TestSpheres:
         }
         optional = {
             'offset': 'x',
+            'cells': True,
+            'round': False,
         }
         obj = p.Spheres(**required, **optional)
         for attr in required:
