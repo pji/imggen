@@ -6,11 +6,12 @@ Image data sources that contain a random element.
 """
 from typing import Sequence, Union
 
+import cv2
 import numpy as np
 from numpy.random import default_rng
 from numpy.typing import NDArray
 
-from imggen.imggen import ImgAry, Loc, Size, Source
+from imggen.imggen import ImgAry, Loc, Size, Source, X, Y, Z
 
 
 # Common types.
@@ -95,3 +96,76 @@ class Noise(Source):
         slices = tuple(slice(n, None) for n in new_loc)
         a = a[slices]
         return a
+
+
+class Embers(Noise):
+    """Fill a space with bright points or dots that resemble embers
+    or stars.
+    """
+    def __init__(
+        self, depth: int = 1,
+        threshhold: float = 0.9998,
+        *args, **kwargs
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.depth = depth
+        self.threshhold = threshhold
+
+    # Public methods.
+    def fill(
+        self, size: Size,
+        loc: Loc = (0, 0, 0)
+    ) -> ImgAry:
+        """Fill a volume with image data.
+
+        :param size: The size of the volume of image data to generate.
+        :param loc: (Optional.) How much to shift the starting point
+            for the noise generation along each axis.
+        :return: An :class:`numpy.ndarray` with image data.
+        :rtype: numpy.ndarray
+        """
+        mag = 1.0
+        out = np.zeros(size, dtype=float)
+        for layer in range(self.depth):
+            # Use the magnification to determine the size of the noise
+            # to get.
+            fill_size = [size[0], *(int(n // mag) for n in size[1:])]
+
+            # Get the noise to work with.
+            a = super().fill(fill_size, loc)
+
+            # Use the threshold to turn it into a sparse collection
+            # of points. Then scale to increase the apparent difference
+            # in brightness.
+            a = a - self.threshhold
+            a[a < 0] = 0.0
+            a[a > 0] = a[a > 0] * 0.25
+            a[a > 0] = a[a > 0] + 0.75
+
+            # Resize to increase the size of the points.
+            resized = np.zeros(size, dtype=a.dtype)
+            for i in range(resized.shape[Z]):
+                frame = np.zeros(a.shape[Y:3], dtype=a.dtype)
+                frame = a[i]
+                resized[i] = cv2.resize(frame, (size[X], size[Y]))
+
+            # Blend the layer with previous layers.
+            out = self._blend(out, resized)
+
+            mag = mag * 1.5
+
+        return out
+
+    # Private methods.
+    def _blend(self, a: ImgAry, b: ImgAry) -> ImgAry:
+        ab = a.copy()
+        ab[b > a] = b[b > a]
+        return ab
+
+
+if __name__ == '__main__':
+    from imggen.utility import print_array
+    e = Embers(threshhold=0.5, seed='bacon')
+    a = e.fill((2, 8, 8))
+    # a = (a * 0xff).astype(np.uint8)
+    print_array(a)
