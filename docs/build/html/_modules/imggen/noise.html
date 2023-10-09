@@ -201,11 +201,12 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">default_rng</span>
 <span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">NDArray</span>
 
-<span class="kn">from</span> <span class="nn">imggen.imggen</span> <span class="kn">import</span> <span class="n">ImgAry</span><span class="p">,</span> <span class="n">Loc</span><span class="p">,</span> <span class="n">Size</span><span class="p">,</span> <span class="n">Source</span>
+<span class="kn">from</span> <span class="nn">imggen.imggen</span> <span class="kn">import</span> <span class="n">ImgAry</span><span class="p">,</span> <span class="n">Loc</span><span class="p">,</span> <span class="n">Size</span><span class="p">,</span> <span class="n">Source</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span>
 
 
 <span class="c1"># Common types.</span>
@@ -222,9 +223,9 @@
 
 <span class="sd">    .. figure:: images/noise.jpg</span>
 <span class="sd">       :alt: A picture of an image created from the output of</span>
-<span class="sd">            :class:`UnitNoise`.</span>
+<span class="sd">            :class:`Noise`.</span>
 <span class="sd">       </span>
-<span class="sd">       Output of :class:`UnitNoise`.</span>
+<span class="sd">       Output of :class:`Noise`.</span>
 <span class="sd">    </span>
 <span class="sd">    :param seed: (Optional.) An int, bytes, or string used to seed</span>
 <span class="sd">        therandom number generator used to generate the image data.</span>
@@ -293,6 +294,106 @@
         <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">a</span></div>
 
+
+
+<div class="viewcode-block" id="Embers">
+<a class="viewcode-back" href="../../api.html#imggen.Embers">[docs]</a>
+<span class="k">class</span> <span class="nc">Embers</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill a space with bright points or dots that resemble embers</span>
+<span class="sd">    or stars.</span>
+
+<span class="sd">    .. figure:: images/Embers.jpg</span>
+<span class="sd">       :alt: A picture of an image created from the output of</span>
+<span class="sd">            :class:`Embers`.</span>
+<span class="sd">       </span>
+<span class="sd">       Output of :class:`Embers`.</span>
+<span class="sd">    </span>
+<span class="sd">    :param depth: (Optional.) The number of different sizes of dots</span>
+<span class="sd">        to create.</span>
+<span class="sd">    :param threshold: (Optional.) Embers starts by generating random</span>
+<span class="sd">        values for each point. This sets the minimum value to keep in</span>
+<span class="sd">        the output. It&#39;s a percentage, and the lower the value the</span>
+<span class="sd">        more points are kept.</span>
+<span class="sd">    :param seed: (Optional.) An int, bytes, or string used to seed</span>
+<span class="sd">        therandom number generator used to generate the image data.</span>
+<span class="sd">        If no value is passed, the RNG will not be seeded, so</span>
+<span class="sd">        serialized versions of this source will not product the</span>
+<span class="sd">        same values. Note: strings that are passed to seed will</span>
+<span class="sd">        be converted to UTF-8 bytes before being converted to</span>
+<span class="sd">        integers for seeding.</span>
+<span class="sd">    :param ease: (Optional.) The easing function to use on the</span>
+<span class="sd">        generated noise.</span>
+<span class="sd">    :return: :class:`Embers` object.</span>
+<span class="sd">    :rtype: imggen.noise.Embers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">threshhold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9998</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshhold</span> <span class="o">=</span> <span class="n">threshhold</span>
+
+    <span class="c1"># Public methods.</span>
+    <span class="k">def</span> <span class="nf">fill</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">Size</span><span class="p">,</span>
+        <span class="n">loc</span><span class="p">:</span> <span class="n">Loc</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImgAry</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fill a volume with image data.</span>
+
+<span class="sd">        :param size: The size of the volume of image data to generate.</span>
+<span class="sd">        :param loc: (Optional.) How much to shift the starting point</span>
+<span class="sd">            for the noise generation along each axis.</span>
+<span class="sd">        :return: An :class:`numpy.ndarray` with image data.</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mag</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">):</span>
+            <span class="c1"># Use the magnification to determine the size of the noise</span>
+            <span class="c1"># to get.</span>
+            <span class="n">fill_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">//</span> <span class="n">mag</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+
+            <span class="c1"># Get the noise to work with.</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">fill_size</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
+
+            <span class="c1"># Use the threshold to turn it into a sparse collection</span>
+            <span class="c1"># of points. Then scale to increase the apparent difference</span>
+            <span class="c1"># in brightness.</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshhold</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">a</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.25</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.75</span>
+
+            <span class="c1"># Resize to increase the size of the points.</span>
+            <span class="n">resized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">resized</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">Z</span><span class="p">]):</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">Y</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">resized</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="n">X</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="n">Y</span><span class="p">]))</span>
+
+            <span class="c1"># Blend the layer with previous layers.</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blend</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">resized</span><span class="p">)</span>
+
+            <span class="n">mag</span> <span class="o">=</span> <span class="n">mag</span> <span class="o">*</span> <span class="mf">1.5</span>
+
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># Private methods.</span>
+    <span class="k">def</span> <span class="nf">_blend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">ImgAry</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">ImgAry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImgAry</span><span class="p">:</span>
+        <span class="n">ab</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ab</span><span class="p">[</span><span class="n">b</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">b</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ab</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">imggen.utility</span> <span class="kn">import</span> <span class="n">print_array</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">Embers</span><span class="p">(</span><span class="n">threshhold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s1">&#39;bacon&#39;</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="c1"># a = (a * 0xff).astype(np.uint8)</span>
+    <span class="n">print_array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

@@ -26,9 +26,9 @@ class Noise(Source):
 
     .. figure:: images/noise.jpg
        :alt: A picture of an image created from the output of
-            :class:`UnitNoise`.
+            :class:`Noise`.
        
-       Output of :class:`UnitNoise`.
+       Output of :class:`Noise`.
     
     :param seed: (Optional.) An int, bytes, or string used to seed
         therandom number generator used to generate the image data.
@@ -101,6 +101,30 @@ class Noise(Source):
 class Embers(Noise):
     """Fill a space with bright points or dots that resemble embers
     or stars.
+
+    .. figure:: images/Embers.jpg
+       :alt: A picture of an image created from the output of
+            :class:`Embers`.
+       
+       Output of :class:`Embers`.
+    
+    :param depth: (Optional.) The number of different sizes of dots
+        to create.
+    :param threshold: (Optional.) Embers starts by generating random
+        values for each point. This sets the minimum value to keep in
+        the output. It's a percentage, and the lower the value the
+        more points are kept.
+    :param seed: (Optional.) An int, bytes, or string used to seed
+        therandom number generator used to generate the image data.
+        If no value is passed, the RNG will not be seeded, so
+        serialized versions of this source will not product the
+        same values. Note: strings that are passed to seed will
+        be converted to UTF-8 bytes before being converted to
+        integers for seeding.
+    :param ease: (Optional.) The easing function to use on the
+        generated noise.
+    :return: :class:`Embers` object.
+    :rtype: imggen.noise.Embers
     """
     def __init__(
         self, depth: int = 1,

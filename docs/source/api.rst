@@ -40,6 +40,7 @@ The following classes generate psuedorandom noise with useful characteristics
 in image data.
 
 .. autofunction:: imggen.Noise
+.. autofunction:: imggen.Embers
 
 
 Unit Noise
